@@ -1,0 +1,37 @@
+:global {
+  /* Color Scheme */
+  
+  --primary-color: #EF5D58; /* buttons, CTAs, links, highlights */
+  --secondary-color: #dc9b57; /* bookshelf pop up background, secondary buttons etc. */ 
+  --bookshelf-back-color: #b17c4b;
+  --accent-color: #b17c4b; /* notifs etc. to draw attention */
+  --background-color: #698168; /* background of the page */
+  --text-color: #8aa6b5; 
+  --error-color: #c7ab7b; 
+
+  /* Fonts */
+
+  @font-face {
+    font-family: 'Recoleta';
+    src: url('../assets/fonts/recoleta-Regular.ttf') format('truetype'); /* Adjust the path as necessary */
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Recoleta';
+    src: url('../assets/fonts/recoleta-Light.ttf') format('truetype'); /* Adjust the path as necessary */
+    font-weight: lighter;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Recoleta';
+    src: url('../assets/fonts/recoleta-SemiBold.ttf') format('truetype'); /* Adjust the path as necessary */
+    font-weight: bold;
+    font-style: normal;
+  }
+
+  /* Fonts */
+  --font-family: 'Recoleta', sans-serif;
+  --font-size: 16px;
+  --font-weight: normal;
+}
