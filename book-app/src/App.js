@@ -16,18 +16,40 @@ import SearchPage from './pages/SearchPage';
 
 const theme = createTheme({
   typography: {
-    fontFamily: [
-      'Outfit Variable',
-    ].join(', '),
+    fontFamily: "'Outfit Variable', sans-serif",
   },
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          fontFamily: 'Outfit Variable',
-        },
-        // You can also override global styles here (e.g., background, margin, etc.)
-      },
+  h1: {
+    fontSize: 60,
+    fontWeight: 600,
+  },
+  h2: {
+    fontSize: 20,
+    fontWeight: 400,
+  },
+  body1: {
+    fontSize: 16,
+    fontWeight: 400,
+  },
+  caption: {
+    fontSize: 10,
+  },
+  button: {
+    fontSize: 10,
+    fontWeight: 600,
+  },
+  palette: {
+    // background: {
+    //   paper: '#FCF5EF',
+    // },
+    text: {
+      primary: '#000000',
+      // secondary: '#ffffff',
+    },
+    primary: {
+      main: '#000000',
+    },
+    secondary: {
+      main: '#000000',
     },
   },
 });
