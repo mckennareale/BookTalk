@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage';
 import OnboardingPage from './pages/OnboardingPage';
 import RecsPage from './pages/RecsPage';
 import SearchPage from './pages/SearchPage';
+import NavigationBar from './components/NavigationBar';
 
 const theme = createTheme({
   typography: {
@@ -57,6 +58,7 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      <NavigationBar />
       <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />

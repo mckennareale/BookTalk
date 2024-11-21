@@ -1,0 +1,38 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #333; /* Background color */
+  padding: 10px 20px; /* Padding */
+}
+
+.logo {
+  height: 50px; /* Adjust logo size */
+}
+
+.nav-links {
+  list-style: none; /* Remove bullet points */
+  display: flex; /* Horizontal layout */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+}
+
+.nav-links li {
+  margin-left: 20px; /* Space between links */
+}
+
+.nav-links a {
+  color: white; /* Link color */
+  text-decoration: none; /* Remove underline */
+}
+
+.nav-links a:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+.login-button {
+  background-color: #007bff; /* Button color */
+  color: white; /* Button text color */
+  padding: 5px 10px; /* Button padding */
+  border-radius: 5px; /* Rounded corners */
+}
