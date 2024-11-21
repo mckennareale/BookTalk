@@ -31,9 +31,10 @@ baseRouter.get('/period_books_rec', bookRecsControllers.getPeriodBookRecs); // R
 baseRouter.get('/set_in_location_recs', locationRecsControllers.getLocationRecs); // Route 9
 baseRouter.get('/category_recs', categoryRecsControllers.getCategoryRecs); // Route 12, 13
 // User books
-// TO DO 
+baseRouter.post('/users/books', userBooksControllers.addUserBooks); // Route 14
+baseRouter.get('/users/books', userBooksControllers.getUserBooks); // Route 15
 // User Auth
-// TO DO
+baseRouter.post('/login', userAuthControllers.login);
 
 
 // For all undefined routes
