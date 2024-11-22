@@ -46,9 +46,6 @@ async function getBookFullInfo(req, res) {
             LIMIT 6;
             `, [bookId]);
 
-        // const reviews = reviewsResult.rows
-        //     .filter(r => r.review_summary)
-        //     .map(r => r.review_summary);
         const authors = authorsResult.rows
             .filter(r => r.authors)
             .map(r => r.authors);
@@ -121,8 +118,9 @@ async function getBooksPartialInfo(req, res) {
                 image: r.image,
                 classification: r.classification,
                 category: r.categories,
-                average_rating: r.average_rating
+                average_rating: r.avg_rating
             }));
+        console.log(result);
         
         return res.status(200).json({data: result});
 
@@ -137,6 +135,7 @@ async function getBooksPartialInfo(req, res) {
 
 // Route 3 - GET /books/search
 async function searchBooks(req, res) {
+
 
     
 }
