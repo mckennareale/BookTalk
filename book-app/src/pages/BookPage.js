@@ -49,8 +49,15 @@ const BookPage = () => {
         <h2 style={{ textAlign: 'left', fontSize: '2rem' }}><strong>Reviews:</strong></h2>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            {book.reviews.map((review, index) => (
-              <div key={index} style={{ flex: 1, marginRight: '20px', backgroundColor: 'beige', borderRadius: '100px', padding: '20px', width: '300px', height: '200px', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.5rem' }}>{review}</div>
+            {book.reviews.slice(0, 6).map((review, index) => (
+              <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', margin: '10px', backgroundColor: '#251F47', color: 'white' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} style={{ color: i < review.review_score ? 'gold' : 'gray' }}>&#9733;</span>
+                  ))}
+                </div>
+                <p style={{ marginTop: '5px' }}>{review.review_text}</p>
+              </div>
             ))}
           </div>
         </div>
