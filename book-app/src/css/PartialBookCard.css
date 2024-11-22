@@ -1,0 +1,43 @@
+/* book-app/src/css/PartialBookCard.css */
+.book-results-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); /* Responsive grid */
+    gap: 5px; /* Space between tiles */
+    padding: 5px; /* Padding around the container */
+  }
+  
+  .book-tile {
+    display: flex; /* Use flexbox for horizontal layout */
+    align-items: center; /* Center items vertically */
+    border: 1px solid #ccc; /* Optional: Add a border */
+    border-radius: 5px; /* Optional: Add rounded corners */
+    background-color: #f9f9f9; /* Optional: Background color */
+    padding: 10px; /* Padding inside the tile */
+    transition: transform 0.2s; /* Smooth hover effect */
+    word-wrap: break-word; /* Wrap long book titles */
+    height: 250px; /* Set a fixed height for uniformity */
+    overflow: hidden; /* Prevent overflow */
+    width: 200px
+  }
+  
+  .book-tile:hover {
+    transform: scale(1.05); /* Scale up on hover */
+  }
+  
+  .book-cover {
+    width: 80px; /* Set a smaller fixed width for the book cover */
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 10px; /* Reduced space between image and text */
+  }
+  
+  .book-info {
+    display: flex;
+    flex-direction: column; /* Stack details vertically */
+    justify-content: flex-start; /* Align text to the top */
+    flex-grow: 1; /* Allow the text area to grow */
+  }
+  
+  .book-info p {
+    margin: 2px 0; /* Adjust the top and bottom margin as needed */
+    overflow-wrap: break-word; /* Ensure text wraps within the container */
+  }
