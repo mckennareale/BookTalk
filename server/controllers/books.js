@@ -36,14 +36,16 @@ async function getBookFullInfo(req, res) {
             `, [bookId]);
 
         const reviewsResult = await db.query(`
-            SELECT review_summary
+            SELECT review_summary,
+                review_text,
+                review_score,
+                profile_name,
+                review_helpfulness
             FROM books_rating
-            WHERE book_id = $1;
+            WHERE book_id = $1
+            LIMIT 6;
             `, [bookId]);
 
-        const reviews = reviewsResult.rows
-            .filter(r => r.review_summary)
-            .map(r => r.review_summary);
         const authors = authorsResult.rows
             .filter(r => r.authors)
             .map(r => r.authors);
@@ -59,7 +61,7 @@ async function getBookFullInfo(req, res) {
             avg_rating: bookResult.rows[0].avg_rating,
             film_name: bookResult.rows[0].film_name,
             avg_price: bookResult.rows[0].avg_price,
-            reviews: reviews.length > 3 ? reviews.slice(0,3) : reviews,
+            reviews: reviewsResult.rows,
             classification: bookResult.rows[0].classification,
         };
 
@@ -116,8 +118,9 @@ async function getBooksPartialInfo(req, res) {
                 image: r.image,
                 classification: r.classification,
                 category: r.categories,
-                average_rating: r.average_rating
+                average_rating: r.avg_rating
             }));
+        console.log(result);
         
         return res.status(200).json({data: result});
 
@@ -132,6 +135,7 @@ async function getBooksPartialInfo(req, res) {
 
 // Route 3 - GET /books/search
 async function searchBooks(req, res) {
+
 
     
 }
