@@ -15,6 +15,7 @@ import RecsPage from './pages/RecsPage';
 import SearchPage from './pages/SearchPage';
 import NavigationBar from './components/NavigationBar';
 import './css/styles.css'
+import PartialBookCard from './components/PartialBookCard';
 
 const theme = createTheme({
   typography: {
@@ -68,6 +69,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/recommendations" element={<RecsPage />} />
+          <Route path="/test" element={<PartialBookCard />} />
         </Routes>
       </div>
     </ThemeProvider>
