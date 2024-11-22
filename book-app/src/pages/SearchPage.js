@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { Button } from '@mui/material';
 import '../css/variables.css';
@@ -6,41 +6,35 @@ import '../css/SearchPage.css';
 import SortIcon from '@mui/icons-material/Sort';
 import SearchDrawer from '../components/SearchDrawer';
 import PartialBookCard from '../components/PartialBookCard';
+import SearchResults from '../components/SearchResults';
 
 
 const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('');
-  const [books, setBooks] = useState([]);
+  const [filters, setFilters] = useState({});
+  const [searchMode, setSearchMode] = useState(''); // Tracks "search" or "filter"
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // this var is being pass into PartialBookCard component. it is a list of bookids
-  const bookTest = ["0826211062", "B000890HE2", "isbn3", "0006498329", 
-    "0006750605",
-    "0007138865",
-    "0020295804",
-    "0020427700", 
-  "0826414346", "0829814000", "0595344550", "0253338352"];
-
-
-
-
-
-
   const handleSearch = () => {
-    // TODO: Implement search logic to fetch books based on searchTerm and filter
+    if (searchTerm.trim()) {
+      setFilters({}); // Clear filters
+      setSearchMode('search'); // Set mode to "search"
+    }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+    if (e.key === 'Enter') handleSearch();
+  };
+
+  const handleApplyFilters = (appliedFilters) => {
+    setSearchTerm(''); // Clear search input
+    setFilters(appliedFilters); // Set filters
+    setSearchMode('filter'); // Set mode to "filter"
+    setDrawerOpen(false); // Close drawer
   };
 
   const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
     setDrawerOpen(open);
   };
 
@@ -64,11 +58,19 @@ const SearchPage = () => {
         </Button>
       </div>
 
-      <SearchDrawer open={drawerOpen} toggleDrawer={toggleDrawer} setFilter={setFilter} />
+      <SearchDrawer
+        open={drawerOpen}
+        toggleDrawer={toggleDrawer}
+        applyFilters={handleApplyFilters}
+      />
 
       <div>
         <h2>Search Results</h2>
-        <PartialBookCard bookIds={bookTest} />
+        <SearchResults
+          searchMode={searchMode}
+          searchQuery={searchTerm}
+          filters={filters}
+        />
       </div>
     </div>
   );

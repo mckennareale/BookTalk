@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Drawer, List, ListItem, ListItemText, Switch, TextField, Button, Autocomplete, FormControl, FormControlLabel, RadioGroup, Radio } from '@mui/material';
 import topCategories from '../helpers/top_categories';
+import authors from '../helpers/authors';
+import time_periods from '../helpers/time_periods';
 
-const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
+const SearchDrawer = ({ open, toggleDrawer, applyFilters }) => {
   const [timePeriod, setTimePeriod] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('');
@@ -10,7 +12,14 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
   const [filmAdaptation, setFilmAdaptation] = useState(false);
 
   const handleApplyFilters = () => {
-    // fill in logic here
+    const filters = {
+      timePeriod,
+      category: selectedCategory,
+      classification: selectedAgeGroup,
+      author,
+      film: filmAdaptation,
+    };
+    applyFilters(filters); // Pass filters to parent
   };
 
   return (
@@ -31,7 +40,7 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
           <div style={{ width: '100%' }}>
               <Autocomplete
                 disablePortal
-                options={["Category 1", "Category 2", "Category 3"]}
+                options={authors}
                 value={author}
                 onChange={(event, newValue) => setAuthor(newValue)}
                 renderInput={(params) => <TextField {...params} label="Choose author" fullWidth />}
@@ -74,7 +83,7 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
           <div style={{ width: '100%' }}>
               <Autocomplete
                 disablePortal
-                options={["Category 1", "Category 2", "Category 3"]}
+                options={time_periods}
                 value={timePeriod}
                 onChange={(event, newValue) => setTimePeriod(newValue)}
                 renderInput={(params) => <TextField {...params} label="Choose time period" fullWidth />}
@@ -88,14 +97,14 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
             </div>
           </ListItem>
         </List>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={handleApplyFilters} 
-          style={{ margin: '10px' }}
-        >
-          Apply Filters
-        </Button>
+        <Button
+        variant="contained"
+        color="primary"
+        onClick={handleApplyFilters}
+        style={{ margin: '10px' }}
+      >
+        Apply Filters
+      </Button>
       </div>
     </Drawer>
   );
