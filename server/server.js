@@ -23,7 +23,7 @@ const baseRouter = express.Router();
 app.use('/api', baseRouter);
 // Books
 baseRouter.get('/books/full_info/:bookId', booksControllers.getBookFullInfo); // Route 1
-baseRouter.post('/books/books/partialInfo', booksControllers.getBooksPartialInfo); // Route 2
+baseRouter.post('/books/partialInfo', booksControllers.getBooksPartialInfo); // Route 2
 baseRouter.get('/books/search', booksControllers.searchBooks); // Route 3 (also for 4, 5)
 // Recs
 baseRouter.get('/book_recs', bookRecsControllers.getBookRecs); // Route 6, 7, 8, 10
