@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { FaSearch } from 'react-icons/fa'; // Importing a magnifying glass icon
-import { Drawer, Button, List, ListItem, ListItemText } from '@mui/material'; // Importing MUI components
-import NavigationBar from '../components/NavigationBar';
+import { FaSearch } from 'react-icons/fa';
+import { Button } from '@mui/material';
+import '../css/variables.css';
+import '../css/SearchPage.css';
+import SortIcon from '@mui/icons-material/Sort';
+import SearchDrawer from '../components/SearchDrawer';
 
 const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState(''); // Example filter state
-  const [books, setBooks] = useState([]); // State to hold search results
-  const [drawerOpen, setDrawerOpen] = useState(false); // State to control drawer visibility
+  const [filter, setFilter] = useState('');
+  const [books, setBooks] = useState([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleSearch = () => {
     // TODO: Implement search logic to fetch books based on searchTerm and filter
@@ -19,7 +22,6 @@ const SearchPage = () => {
     }
   };
 
-  // opens 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -30,49 +32,24 @@ const SearchPage = () => {
   return (
     <div>
       <h1>Search for a Book</h1>
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <input
+          className="search-bar"
           type="text"
           placeholder="Search for a book."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleKeyPress}
-          style={{ width: '1400px', padding: '10px', fontSize: '40px' }} // Increased width and padding
         />
-        <button 
-          onClick={handleSearch} 
-          style={{ position: 'absolute', right: '30px', top: '7px', background: 'none', border: 'none', cursor: 'pointer' }}
-        >
-        <FaSearch size={50} /> {/* Magnifying glass icon */}
+        <button className="magnifying-glass" onClick={handleSearch}>
+          <FaSearch size={50} />
         </button>
+        <Button onClick={toggleDrawer(true)} className="sort-button">
+          <SortIcon style={{ fontSize: '70px' }} />
+        </Button>
       </div>
 
-      <Button variant="outlined" onClick={toggleDrawer(true)}>Open Filters</Button>
-
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <div
-          role="presentation"
-          onClick={toggleDrawer(false)}
-          onKeyDown={toggleDrawer(false)}
-          style={{ width: 250 }}
-        >
-          <List>
-            <ListItem>
-              <ListItemText primary="Select Filter" />
-            </ListItem>
-            <ListItem button onClick={() => setFilter('author')}>
-              <ListItemText primary="Author" />
-            </ListItem>
-            <ListItem button onClick={() => setFilter('genre')}>
-              <ListItemText primary="Genre" />
-            </ListItem>
-            <ListItem button onClick={() => setFilter('year')}>
-              <ListItemText primary="Publication Year" />
-            </ListItem>
-            {/* Add more filter options as needed */}
-          </List>
-        </div>
-      </Drawer>
+      <SearchDrawer open={drawerOpen} toggleDrawer={toggleDrawer} setFilter={setFilter} />
 
       <div>
         <h2>Search Results</h2>

@@ -1,0 +1,57 @@
+body {
+    font-family: var(--font-family); /* Recoleta font */
+    font-weight: lighter; /* Light font weight */
+
+}
+
+h1, h2 {
+    font-family: var(--your-heading-font-variable);
+}
+
+input {
+    font-family: var(--font-family); /* Recoleta font */
+    font-weight: normal; /* Light font weight */
+}
+
+button {
+    font-family: var(--font-family); /* Recoleta font */
+    font-weight: lighter; /* Light font weight */
+}
+
+
+
+
+
+/* created by Thrisna */
+
+.sort-button {
+    margin-left: 10px; /* Add margin for spacing */
+    border: none; /* Remove border */
+    padding: 10px; /* Increase padding to make the button larger */
+    min-width: 50px; /* Set a minimum width for the button */
+    display: flex; /* Use flex to center the icon */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    background: none; /* Remove background */
+    box-shadow: none; /* Remove any shadow */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.search-bar {
+    margin-left: 10px; /* Add margin for spacing */
+    width: 1700px; /* Increase width as needed */
+    padding: 10px; /* Keep padding for better appearance */
+    font-size: 30px; /* Increase font size for better readability */
+}
+
+.magnifying-glass {
+    position: absolute; /* Use absolute positioning */
+    right: 80px; /* Adjust as needed to fit within the search bar */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Adjust for perfect centering */
+    cursor: pointer; /* Change cursor to pointer */
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    padding: 0; /* Remove padding */
+    outline: none; /* Remove outline */
+}
