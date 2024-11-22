@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom'; // Import NavLink
 import { Container, Box } from '@mui/material'; // Import Container and Box from Material-UI
-// import '../css/PartialBookCard.css'; // Import the CSS file for styles
+import '../css/PartialBookCard.css'; // Import the CSS file for styles
 
-const PartialBookCard = () => {
+const PartialBookCard = ({ bookIds }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
-    const bookIds = ["0826211062", "B000890HE2", "isbn3"];
-
     fetch(`${process.env.REACT_APP_API_BASE}/books/partialInfo`, {
       method: 'POST',
       headers: {
@@ -31,39 +29,31 @@ const PartialBookCard = () => {
     .finally(() => {
       setLoading(false);
     });
-  }, []);
+  }, [bookIds]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const format1 = {
+  const format3 = {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
   };
-
-  const format2 = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    background: '#F19C79', 
-    borderRadius: '16px', 
-    border: '2px solid #000' 
-  };
-
 
   return (
-    <Container style={format1}>
+    <Container className = "book-results-container">
       {books.map(book => (
-        <Box key={book.isbn} p={3} m={2} style={format2}>
+        <Box key={book.isbn} p={2} m={2} className="book-tile">
           <img src={book.image} alt={`${book.title} book art`} className="book-cover" />
-          <h4>
-            <NavLink to={`/books/full_info/${book.isbn}`}>{book.title}</NavLink>
-          </h4>
-          <p>Category: {book.category}</p>
-          <p>Classification: {book.classification}</p>
-          <p>Average Rating: {book.average_rating}</p>
+          <div className="book-info">
+            <h4>
+              <NavLink to={`/books/${book.isbn}`}>{book.title}</NavLink>
+            </h4>
+            <p>Category: {book.category}</p>
+            <p>Classification: {book.classification}</p>
+            <p>Average Rating: {book.average_rating}</p>
+          </div>
         </Box>
       ))}
     </Container>
