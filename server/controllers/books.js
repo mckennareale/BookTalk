@@ -1,5 +1,9 @@
 const db = require('../db');
 
+// TO DOS
+// 1. Add bx book option for routes 2 & 3
+// 2. Add time period 
+
 // Route 1 - GET /books/full_info/:bookId
 async function getBookFullInfo(req, res) {
     // const uid = req.userId;
@@ -103,7 +107,7 @@ async function getBooksPartialInfo(req, res) {
         const queryString = queryStringList.join(',')
 
         const bookResults = await db.query(`
-            SELECT ab.id, ab.title, ab.image, ab.classification,
+            SELECT DISTINCT ab.id, ab.title, ab.image, ab.classification,
                 ab.categories, ROUND(AVG(ar.review_score),2) AS avg_rating
                 FROM amazon_books ab
                     LEFT JOIN books_rating ar ON ab.id = ar.book_id
@@ -120,7 +124,7 @@ async function getBooksPartialInfo(req, res) {
                 category: r.categories,
                 average_rating: r.avg_rating
             }));
-        console.log(result);
+        // console.log(result);
         
         return res.status(200).json({data: result});
 
@@ -129,15 +133,137 @@ async function getBooksPartialInfo(req, res) {
         return res.status(500).json({ message: "Internal server error"});
     }
 
-
 }
 
 
-// Route 3 - GET /books/search
+// Route 3 - POST /books/search
 async function searchBooks(req, res) {
-
-
+    // Author
+    // Category
+    // Classfication
+    // Time Period - 1, 2, 3, 4, 5
+    // Film Adaptation - true
+    const { title, author, category, classification, timePeriod, film } = req.body.data;
+    // console.log(title);
+    let queryStr = `
+        SELECT ab.id, ab.title, ab.image, ab.classification,
+            ab.categories, ROUND(AVG(ar.review_score),2) AS avg_rating
+            FROM amazon_books ab
+                LEFT JOIN books_rating ar ON ab.id = ar.book_id 
+                LEFT JOIN authors ba ON ab.id = ba.id
+        `;
     
+    if (!title && !author && !category && !classification && !timePeriod && !film) {
+        return res.status(400).json({message: "No search criteria provided. "})
+    }
+
+    if (title) {
+        try {
+            queryStr += `
+                WHERE ab.title ILIKE $1
+                GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories
+                LIMIT 100;
+                `;
+            const bookResults = await db.query(queryStr, [`%${title}%`]);
+            const result = bookResults.rows
+                .map((r) => ({
+                    isbn: r.id,
+                    title: r.title,
+                    image: r.image,
+                    classification: r.classification,
+                    category: r.categories,
+                    average_rating: r.avg_rating
+                }));
+            return res.status(200).json({ data: result});
+        } catch (e) {
+            console.error(`Error getting search results based on title: `, e);
+            return res.status(500).json({ message: "Internal server error"});
+        }
+    }
+
+    let count = 0;
+    let inputs = [];
+    queryStr += ' WHERE '
+
+    if (author) {
+        count += 1;
+        queryStr += ` ba.authors ILIKE $${count} `;
+        inputs.push(`%${author}%`);
+    }
+
+    if (category) {
+        count += 1;
+        if (count > 1) {
+            queryStr += ` AND `;
+        }
+        queryStr += ` ab.categories=$${count} `;
+        inputs.push(category);
+    }
+
+    if (classification) {
+        count += 1;
+        if (count > 1) {
+            queryStr += ` AND `;
+        }
+        queryStr += ` ab.classification=$${count} `;
+        inputs.push(classification);
+    }
+
+    // 1 WHEN bb.time_period_start >= 2000 AND bb.time_period_end <= 2024 THEN 'modern'
+    // 2 WHEN bb.time_period_start >= 1900 AND bb.time_period_end <= 1999 THEN '20th_century'
+    // 3 WHEN bb.time_period_start >= 1800 AND bb.time_period_end <= 1899 THEN '19th_century'
+    // 4 WHEN bb.time_period_start >= 500 AND bb.time_period_end <= 1499 THEN 'medieval'
+    // 5 WHEN bb.time_period_end < 500 THEN 'ancient'
+
+    if (timePeriod) {
+        count += 1;
+        if (count > 1) {
+            queryStr += ` AND `;
+        }
+        if (timePeriod == 1) {
+            queryStr += ' ab.time_period_start >= 2000 ';
+        } else if (timePeriod == 2) {
+            queryStr += ' ab.time_period_start >= 1900 AND ab.time_period_end <= 1999 ';
+        } else if (timePeriod == 3) {
+            queryStr += ' ab.time_period_start >= 1800 AND ab.time_period_end <= 1899 ';
+        } else if (timePeriod == 4) {
+            queryStr += ' ab.time_period_start >= 500 AND ab.time_period_end <= 1499 ';
+        } else if (timePeriod == 5) {
+            queryStr += ' ab.time_period_end < 500 ';
+        } else {
+            return res.status(400).json({ message: "Invalid time period value." });
+        }
+    }
+
+    if (film) {
+        count += 1;
+        if (count > 1) {
+            queryStr += ` AND `;
+        }
+        queryStr += ` ab.film_name IS NOT NULL `;
+    }
+
+    queryStr += `GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories 
+        LIMIT 100;
+    `;
+
+    try {
+        const bookResults = await db.query(queryStr, inputs);
+        const result = bookResults.rows
+            .map((r) => ({
+                isbn: r.id,
+                title: r.title,
+                image: r.image,
+                classification: r.classification,
+                category: r.categories,
+                average_rating: r.avg_rating
+            }));
+        return res.status(200).json({ data: result});
+    } catch(e) {
+        console.error(`Error getting search results: `, e);
+        return res.status(500).json({ message: "Internal server error"});
+    }
+
 }
 
 
