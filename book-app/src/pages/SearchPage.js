@@ -5,12 +5,27 @@ import '../css/variables.css';
 import '../css/SearchPage.css';
 import SortIcon from '@mui/icons-material/Sort';
 import SearchDrawer from '../components/SearchDrawer';
+import PartialBookCard from '../components/PartialBookCard';
+
 
 const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('');
   const [books, setBooks] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // this var is being pass into PartialBookCard component. it is a list of bookids
+  const bookTest = ["0826211062", "B000890HE2", "isbn3", "0006498329", 
+    "0006750605",
+    "0007138865",
+    "0020295804",
+    "0020427700", 
+  "0826414346", "0829814000", "0595344550", "0253338352"];
+
+
+
+
+
 
   const handleSearch = () => {
     // TODO: Implement search logic to fetch books based on searchTerm and filter
@@ -53,15 +68,7 @@ const SearchPage = () => {
 
       <div>
         <h2>Search Results</h2>
-        {books.length > 0 ? (
-          <ul>
-            {books.map((book) => (
-              <li key={book.id}>{book.title} by {book.author}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>No books found.</p>
-        )}
+        <PartialBookCard bookIds={bookTest} />
       </div>
     </div>
   );

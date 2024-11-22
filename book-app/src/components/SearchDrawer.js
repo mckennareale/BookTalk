@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Drawer, List, ListItem, ListItemText, Switch, TextField, Button, Autocomplete, FormControl, FormControlLabel, RadioGroup, Radio } from '@mui/material';
+import topCategories from '../helpers/top_categories';
 
 const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
   const [timePeriod, setTimePeriod] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('');
   const [author, setAuthor] = useState('');
-  const label = { inputProps: { 'aria-label': 'Film Adaptation switch' } };
+  const [filmAdaptation, setFilmAdaptation] = useState(false);
 
   const handleApplyFilters = () => {
     // fill in logic here
@@ -31,7 +32,7 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
               <Autocomplete
                 disablePortal
                 options={["Category 1", "Category 2", "Category 3"]}
-                value={selectedCategory}
+                value={author}
                 onChange={(event, newValue) => setAuthor(newValue)}
                 renderInput={(params) => <TextField {...params} label="Choose author" fullWidth />}
               />
@@ -43,7 +44,7 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
             <div style={{ width: '100%' }}>
               <Autocomplete
                 disablePortal
-                options={["Category 1", "Category 2", "Category 3"]}
+                options={topCategories}
                 value={selectedCategory}
                 onChange={(event, newValue) => setSelectedCategory(newValue)}
                 renderInput={(params) => <TextField {...params} label="Choose categories" fullWidth />}
@@ -74,7 +75,7 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
               <Autocomplete
                 disablePortal
                 options={["Category 1", "Category 2", "Category 3"]}
-                value={selectedCategory}
+                value={timePeriod}
                 onChange={(event, newValue) => setTimePeriod(newValue)}
                 renderInput={(params) => <TextField {...params} label="Choose time period" fullWidth />}
               />
@@ -83,7 +84,7 @@ const SearchDrawer = ({ open, toggleDrawer, setFilter }) => {
           <ListItem style={{ marginTop: '5px' }}>
             <ListItemText primary="Film Adaptation" />
             <div>
-            <Switch {...label} />
+            <Switch onChange={(e) => setFilmAdaptation(e.target.checked)} />
             </div>
           </ListItem>
         </List>
