@@ -14,11 +14,22 @@ const SearchPage = () => {
   const [filters, setFilters] = useState({});
   const [searchMode, setSearchMode] = useState(''); // Tracks "search" or "filter"
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [titleTerm, setTitleTerm] = useState(''); //
+
+  const testBookIds = ["0027085201", "0006551475", "0140236090", "0345462351",
+    "034546236X",
+    "0373261772",
+    "0373441150",
+    "0374117349",
+    "0374223076"]
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
       setFilters({}); // Clear filters
       setSearchMode('search'); // Set mode to "search"
+      setTitleTerm(searchTerm);
+      console.log(searchTerm)
+      console.log(titleTerm)
     }
   };
 
@@ -68,7 +79,7 @@ const SearchPage = () => {
         <h2>Search Results</h2>
         <SearchResults
           searchMode={searchMode}
-          title={searchTerm}
+          title={titleTerm}
           filters={filters}
         />
       </div>
