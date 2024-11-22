@@ -1,18 +1,66 @@
 const db = require('../db');
 
-// Route 6,7,8,10 - GET /books/book_recs?criteria=X&book_id=Y
+// TODO -- this does not work 
+// Route 6,7,8,10 - GET /book_recs?criteria=X&book_id=Y
 async function getBookRecs(req, res) {
-    // TO DO
+    const criteria = req.query.criteria;
+    const book_id = req.query.book_id;
+
     const user_id = '15';
-    const book_ids = req.body.data.book_ids;
-    const { review_score, summary, text } = req.body.data;
+    const limit = 5;
 
     if (!user_id) {
         return res.status(400).json({ message: 'Missing or invalid user ID' });
     }
 
-    
-    
+    // if (!criteria) {
+    //     return res.status(400).json({ message: 'Missing or invalid criteria' });
+    // }
+    // if (!book_id) {
+    //     return res.status(400).json({ message: 'Missing or invalid book ID' });
+    // }
+
+    let query;
+    switch (criteria) {
+        case 'top_categories':
+            query = `
+                WITH top_app_user_author as
+                (
+                SELECT a.authors, COUNT(hr.book_id) as review_count FROM has_reviewed hr
+                JOIN authors a on hr.book_id = a.id
+                WHERE hr.user_id = ${user_id}
+                GROUP BY a.authors
+                ORDER BY review_count DESC
+                LIMIT 5
+                )
+                SELECT ab.id, ar.review_score FROM amazon_books ab
+                LEFT JOIN books_rating ar on ab.id = ar.book_id
+                LEFT JOIN authors a on ab.id = a.id
+                WHERE a.authors IN (SELECT authors from top_app_user_author)
+                GROUP BY ab.id, ab.authors, ar.review_score
+                ORDER BY ar.review_score
+                LIMIT ${limit};
+                `;
+            break;
+        case 'top_authors':
+            query = ``;
+            break;
+        case 'similar_age':
+            query = ``;
+        case 'classification':
+            query = ``;
+            break;
+        default:
+            return res.status(400).json({ message: 'Invalid criteria' });
+    }
+
+    try {
+        const result = await db.query(query); // Execute the query
+        return res.status(200).json({ data: result.rows }); // Send the results
+    } catch (error) {
+        console.error('Error executing query:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
 
 }
 
