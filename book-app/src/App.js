@@ -14,6 +14,7 @@ import OnboardingPage from './pages/OnboardingPage';
 import RecsPage from './pages/RecsPage';
 import SearchPage from './pages/SearchPage';
 import NavigationBar from './components/NavigationBar';
+import './css/styles.css'
 
 const theme = createTheme({
   typography: {

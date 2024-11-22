@@ -1,9 +1,13 @@
+@import './variables.css';
+
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #333; /* Background color */
   padding: 10px 20px; /* Padding */
+  color: var(--text-color); /* Link color */
+  font-family: var(--font-family); /* Recoleta font */
+  font-weight: lighter; /* Light font weight */
 }
 
 .logo {
@@ -22,7 +26,7 @@
 }
 
 .nav-links a {
-  color: white; /* Link color */
+  color: var(--text-color); /* Link color */
   text-decoration: none; /* Remove underline */
 }
 

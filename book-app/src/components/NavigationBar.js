@@ -6,11 +6,10 @@ import '../css/NavigationBar.css'; // Optional: Import a CSS file for styling
 const NavigationBar = () => {
   return (
     <nav className="navbar">
-      <img src={logo} alt="Logo" className="logo" />
+      <Link to="/">
+        <img src={logo} alt="Logo" className="logo" />
+      </Link>
       <ul className="nav-links">
-        <li>
-          <Link to="/">Home</Link>
-        </li>
         <li>
           <Link to="/search">Search Page</Link>
         </li>
