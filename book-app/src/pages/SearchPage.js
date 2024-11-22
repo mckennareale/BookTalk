@@ -68,7 +68,7 @@ const SearchPage = () => {
         <h2>Search Results</h2>
         <SearchResults
           searchMode={searchMode}
-          searchQuery={searchTerm}
+          title={searchTerm}
           filters={filters}
         />
       </div>

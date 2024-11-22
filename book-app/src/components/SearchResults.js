@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'; // Import NavLink
 import { Container, Box } from '@mui/material'; // Import Container and Box from Material-UI
 import '../css/PartialBookCard.css'; // Import the CSS file for styles
 
-const SearchResults = ({ searchMode, filters, searchQuery }) => {
+const SearchResults = ({ searchMode, title, filters }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [books, setBooks] = useState([]);
@@ -11,15 +11,19 @@ const SearchResults = ({ searchMode, filters, searchQuery }) => {
   useEffect(() => {
     const query =
       searchMode === 'search'
-        ? JSON.stringify({ searchQuery }) // Payload for search
+        ? JSON.stringify({ title }) // Payload for search
         : JSON.stringify(filters); // Payload for filters
 
+        console.log(query);
     fetch(`${process.env.REACT_APP_API_BASE}/books/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: query,
+      body: JSON.stringify({
+        data: query
+      }) // Correctly stringify the body
+
     })
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');
@@ -32,7 +36,7 @@ const SearchResults = ({ searchMode, filters, searchQuery }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [searchMode, searchQuery, filters]); // Re-run when mode, query, or filters change
+  }, [searchMode, title, filters]); // Re-run when mode, query, or filters change
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
