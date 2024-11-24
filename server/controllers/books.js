@@ -6,10 +6,10 @@ const db = require('../db');
 
 // Route 1 - GET /books/full_info/:bookId
 async function getBookFullInfo(req, res) {
-    // const uid = req.userId;
-    // if (!uid) {
-    //     return res.status(401).json({ message: 'Unauthorized user' });
-    // }
+    const uid = req.userId;
+    if (!uid) {
+        return res.status(401).json({ message: 'Unauthorized user' });
+    }
 
     const bookId = req.params.bookId;
     if (!bookId) {

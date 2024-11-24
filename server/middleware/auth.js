@@ -11,13 +11,14 @@ const authMiddleware = (req, res, next) => {
         
         try {
             const authData = jwt.verify(bearerToken, process.env.JWT_SECRET);
+            req.userId = authData.id;
             next();
         } catch (e) {
             return res.status(401).json({ message: "Unable to authenticate user. "});
         }
         
     } else {
-        console.error("Login error:", e.message);
+        console.error("Missing auth token. ");
         return res.status(403).json({ message: "Missing authorization token." });
     }
 
