@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { body, validationResult } = require('express-validator');
 
 const booksControllers = require('./controllers/books');
 const bookRecsControllers = require('./controllers/bookRecs');
@@ -9,6 +10,7 @@ const userBooksControllers = require('./controllers/userBooks');
 const userAuthControllers = require('./controllers/userAuth');
 
 const logger = require('./middleware/logger');
+const authMiddleware = require('./middleware/auth');
 
 const app = express();
 app.use(express.json());
@@ -22,7 +24,7 @@ app.use(cors({
 const baseRouter = express.Router();
 app.use('/api', baseRouter);
 // Books
-baseRouter.get('/books/full_info/:bookId', booksControllers.getBookFullInfo); // Route 1
+baseRouter.get('/books/full_info/:bookId', authMiddleware, booksControllers.getBookFullInfo); // Route 1
 baseRouter.post('/books/partialInfo', booksControllers.getBooksPartialInfo); // Route 2
 baseRouter.post('/books/search', booksControllers.searchBooks); // Route 3 (also for 4, 5)
 // Recs
@@ -34,7 +36,12 @@ baseRouter.get('/category_recs', categoryRecsControllers.getCategoryRecs); // Ro
 baseRouter.post('/users/books', userBooksControllers.addUserBooks); // Route 14
 baseRouter.get('/users/books', userBooksControllers.getUserBooks); // Route 15
 // User Auth
-baseRouter.post('/login', userAuthControllers.login);
+baseRouter.post('/login/password',
+    body('email').notEmpty().isEmail(), 
+    body('password').notEmpty(),
+    userAuthControllers.passwordLogin);
+baseRouter.post('/login/google', userAuthControllers.googleLogin);
+baseRouter.post('/login/facebook', userAuthControllers.facebookLogin);
 
 
 // For all undefined routes
