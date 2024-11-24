@@ -1,31 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { Button } from '@mui/material';
 import '../css/variables.css';
 import '../css/SearchPage.css';
 import SortIcon from '@mui/icons-material/Sort';
 import SearchDrawer from '../components/SearchDrawer';
+import PartialBookCard from '../components/PartialBookCard';
+import SearchResults from '../components/SearchResults';
+
 
 const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('');
-  const [books, setBooks] = useState([]);
+  const [filters, setFilters] = useState({});
+  const [searchMode, setSearchMode] = useState(''); // Tracks "search" or "filter"
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [titleTerm, setTitleTerm] = useState(''); //
+
+  const testBookIds = ["0027085201", "0006551475", "0140236090", "0345462351",
+    "034546236X",
+    "0373261772",
+    "0373441150",
+    "0374117349",
+    "0374223076"]
 
   const handleSearch = () => {
-    // TODO: Implement search logic to fetch books based on searchTerm and filter
+    if (searchTerm.trim()) {
+      setFilters({}); // Clear filters
+      setSearchMode('search'); // Set mode to "search"
+      setTitleTerm(searchTerm);
+      console.log(searchTerm)
+      console.log(titleTerm)
+    }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+    if (e.key === 'Enter') handleSearch();
+  };
+
+  const handleApplyFilters = (appliedFilters) => {
+    setSearchTerm(''); // Clear search input
+    setFilters(appliedFilters); // Set filters
+    setSearchMode('filter'); // Set mode to "filter"
+    setDrawerOpen(false); // Close drawer
   };
 
   const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
     setDrawerOpen(open);
   };
 
@@ -49,19 +69,19 @@ const SearchPage = () => {
         </Button>
       </div>
 
-      <SearchDrawer open={drawerOpen} toggleDrawer={toggleDrawer} setFilter={setFilter} />
+      <SearchDrawer
+        open={drawerOpen}
+        toggleDrawer={toggleDrawer}
+        applyFilters={handleApplyFilters}
+      />
 
       <div>
         <h2>Search Results</h2>
-        {books.length > 0 ? (
-          <ul>
-            {books.map((book) => (
-              <li key={book.id}>{book.title} by {book.author}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>No books found.</p>
-        )}
+        <SearchResults
+          searchMode={searchMode}
+          title={titleTerm}
+          filters={filters}
+        />
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import SearchPage from './pages/SearchPage';
 import NavigationBar from './components/NavigationBar';
 import './css/styles.css'
 import ProtectedRoute from './ProtectedRoute';
+import PartialBookCard from './components/PartialBookCard';
 
 const theme = createTheme({
   typography: {
@@ -69,6 +70,7 @@ function App() {
             </ProtectedRoute> 
             } />
           <Route path="/login" element={<LoginPage />} />
+
           <Route path="/books/:bookId" element={
             <ProtectedRoute>
               <BookPage />
@@ -89,6 +91,9 @@ function App() {
               <RecsPage />
               </ProtectedRoute>
             } />
+
+          <Route path="/test" element={<PartialBookCard />} />
+
         </Routes>
       </div>
     </ThemeProvider>

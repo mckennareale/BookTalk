@@ -4,6 +4,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  background-color: #CEC075; /* Light coloured background */
+
   padding: 10px 20px; /* Padding */
   color: var(--text-color); /* Link color */
   font-family: var(--font-family); /* Recoleta font */
