@@ -1,31 +1,49 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; 
+import { customFetch } from '../utils/customFetch';
+import { useNavigate } from 'react-router-dom';
 
 const BookPage = () => {
   const {bookId} = useParams(); // Get bookId from URL parameters
   const [book, setBook] = useState(null); // State for book details
   const [loading, setLoading] = useState(true); // State for loading status
   const [error, setError] = useState(null); // State for error handling
-
-
+  const navigate = useNavigate();
   
 
   useEffect(() => {
-    
-    fetch(`${process.env.REACT_APP_API_BASE}/books/full_info/${bookId}`)
-    .then(res => {
-      if (!res.ok) {
-        throw new Error('Network response was not ok'); // Handle non-200 responses
+
+    const fetchBook = async () => {
+      try {
+        const responseJson = await customFetch(
+          `${process.env.REACT_APP_API_BASE}/books/full_info/${bookId}`, 
+          {}, 
+          navigate);
+        setBook(responseJson);
+      } catch (err) {
+        setError(err.message || 'Error fetching book details'); // Handle error
+      } finally {
+        setLoading(false);
       }
-      return res.json(); // Parse the JSON response
-    })
-    .then(data => setBook(data)) // Set the book state with the fetched data
-    .catch(err => {
-      setError(err.message || 'Error fetching book details'); // Handle error
-    })
-    .finally(() => {
-      setLoading(false); // Set loading to false after fetching
-    });
+    };
+
+    fetchBook();
+    console.log(book);
+    // fetch(`${process.env.REACT_APP_API_BASE}/books/full_info/${bookId}`)
+    // .then(res => {
+    //   if (!res.ok) {
+    //     throw new Error('Network response was not ok'); // Handle non-200 responses
+    //   }
+    //   return res.json(); // Parse the JSON response
+    // })
+    // .then(data => setBook(data)) // Set the book state with the fetched data
+    // .catch(err => {
+    //   setError(err.message || 'Error fetching book details'); // Handle error
+    // })
+    // .finally(() => {
+    //   setLoading(false); // Set loading to false after fetching
+    // });
+
   }, [bookId]);
 
   if (loading) return <div>Loading...</div>; // Loading state
@@ -46,7 +64,13 @@ const BookPage = () => {
       <h2>Reviews:</h2>
       <ul>
         {book.reviews.map((review, index) => (
-          <li key={index}>{review}</li>
+          <li key={index}>
+              <p><strong>Summary:</strong> {review.review_summary}</p>
+              <p><strong>Text:</strong> {review.review_text}</p>
+              <p><strong>Score:</strong> {review.review_score}</p>
+              <p><strong>Reviewer:</strong> {review.profile_name}</p>
+              <p><strong>Helpfulness:</strong> {review.review_helpfulness}</p>
+          </li>
         ))}
       </ul>
       <p>Classification: {book.classification}</p>

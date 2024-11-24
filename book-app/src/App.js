@@ -15,6 +15,7 @@ import RecsPage from './pages/RecsPage';
 import SearchPage from './pages/SearchPage';
 import NavigationBar from './components/NavigationBar';
 import './css/styles.css'
+import ProtectedRoute from './ProtectedRoute';
 
 const theme = createTheme({
   typography: {
@@ -62,12 +63,32 @@ function App() {
       <NavigationBar />
       <div className="App">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute> 
+            } />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/books/:bookId" element={<BookPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/recommendations" element={<RecsPage />} />
+          <Route path="/books/:bookId" element={
+            <ProtectedRoute>
+              <BookPage />
+            </ProtectedRoute>
+            } />
+          <Route path="/search" element={
+            <ProtectedRoute>
+              <SearchPage />
+            </ProtectedRoute>
+            } />
+          <Route path="/onboarding" element={
+            <ProtectedRoute>
+              <OnboardingPage />
+            </ProtectedRoute>
+            } />
+          <Route path="/recommendations" element={
+            <ProtectedRoute>
+              <RecsPage />
+              </ProtectedRoute>
+            } />
         </Routes>
       </div>
     </ThemeProvider>
