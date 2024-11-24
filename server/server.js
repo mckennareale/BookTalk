@@ -45,7 +45,7 @@ baseRouter.post('/login/facebook', userAuthControllers.facebookLogin);
 
 
 // For all undefined routes
-baseRouter.use((req, res) => {res.status(404).send('Not Found')});
+baseRouter.use((req, res) => {res.status(404).send('Not Found!')});
 
 const port = process.env.SERVER_PORT;
 app.listen(port, ()=> {

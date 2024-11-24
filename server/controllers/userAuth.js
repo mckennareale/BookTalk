@@ -73,20 +73,67 @@ async function passwordLogin(req, res) {
 
 
 async function googleLogin(req, res) {
+    
+    let uid = null;
+    let newUser = false;
     // if google
         // check using google id
-    // if facebook
-        // check using fb id
+    
 
-    // if new user
-        // generate new uid, attach to req
-        // add new user entry to db
-        // issue jwt
-        // log in
+    
+    try {
+
+        const token = jwt.sign({id: uid}, process.env.JWT_SECRET, { expiresIn: '7d' });
+        
+        if (!newUser) {
+            return res.status(200).json({
+                message: "Logged in",
+                token: token,
+                uid: uid
+            });
+        } else {
+            return res.status(200).json({
+                message: "New user created and logged in",
+                token: token,
+                uid: uid
+            });
+        }
+    } catch (e) {
+        console.error('Error generating JWT:', e.message);
+        return res.status(500).json({message: "Error with token generation. "});
+    }
+
 }
 
 async function facebookLogin(req, res) {
+    let uid = null;
+    let newUser = false;
+    
+    // if facebook
+        // check using fb id
 
+    
+    try {
+
+        const token = jwt.sign({id: uid}, process.env.JWT_SECRET, { expiresIn: '7d' });
+        
+        if (!newUser) {
+            return res.status(200).json({
+                message: "Logged in",
+                token: token,
+                uid: uid
+            });
+        } else {
+            return res.status(200).json({
+                message: "New user created and logged in",
+                token: token,
+                uid: uid
+            });
+        }
+    } catch (e) {
+        console.error('Error generating JWT:', e.message);
+        return res.status(500).json({message: "Error with token generation. "});
+    }
 }
 
 module.exports = {

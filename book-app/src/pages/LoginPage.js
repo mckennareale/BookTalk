@@ -1,5 +1,7 @@
 import React, {useEffect} from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import validator from 'validator';
 
 import { useState } from "react"
 import { Container, Box, Typography } from "@mui/material";
@@ -7,6 +9,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 
@@ -14,11 +17,72 @@ import logo from '../assets/logo.png';
 
 
 export default function LoginPage() {
-//   const navigate = useNavigate();
-//   const [userId, setUserId] = useState(null);
 
-  const handlePasswordLogin = () => {
+//   const [userId, setUserId] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); 
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const { login } = useAuth(); 
+  const navigate = useNavigate(); 
+
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setEmail(email);
+  };
+
+  const handlePasswordChange = (e) => {
+    const password = e.target.value;
+    setPassword(password);
+  }  
+
+  const handlePasswordLogin = async () => {
+    setError('');
+
+    if (!validator.isEmail(email)) {
+      setShowErrorAlert(true);
+      setError('Invalid email. ');
+      return;
+    }
+
+    if (password.trim() === '') {
+      setShowErrorAlert(true);
+      setError('Password cannot be empty. ');
+      return;
+    }
+
+    const loginData = {
+      email: email,
+      password: password
+    };
+
+    try {
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE}/login/password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(loginData)
+        }
+      );
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message ); // Throw an error if the response is not ok
+      }    
+
+      const responseData = await response.json();
+      login(responseData.token);
+      navigate('/');
+    } catch (err) {
+      setError(err.message || "Something went wrong :(");
+      setShowErrorAlert(true);
+    }
+
   }
+
 //     signInWithGooglePopup()
 //       .then((result) => {
 //         const userName = result.user.displayName;
@@ -38,8 +102,7 @@ export default function LoginPage() {
 //       .catch((error) => {
 //         alert(error);
 //       });
-  const handleEmailChange = () => {}
-  const handlePasswordChange = () => {}  
+
 
   const handleGoogleLogin = () => {
 
@@ -84,6 +147,11 @@ export default function LoginPage() {
           <Button variant="contained" size="large" onClick={handlePasswordLogin}>Login / Sign Up with Email & Password</Button>
           <Button variant="outlined" size="large" startIcon={<GoogleIcon />} onClick={handleGoogleLogin}>Login / Sign Up with Google</Button>
           <Button variant="outlined" size="large" startIcon={<FacebookIcon />} onClick={handleFacebookLogin}>Login / Sign Up with Facebook</Button>
+          {showErrorAlert && (
+            <Alert variant="outlined" severity="error">
+              {error}
+            </Alert>
+          )}
         </Stack>
 
       </Box>
