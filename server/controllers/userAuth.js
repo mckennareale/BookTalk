@@ -1,5 +1,5 @@
 const db = require('../db');
-const passport = require('passport');
+
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
@@ -43,7 +43,7 @@ async function passwordLogin(req, res) {
             }
         }
     } catch (e) {
-        console.error("Error with user login: ", e);
+        console.error("Error with user login (DB query): ", e);
         return res.status(500).json({message: "Internal server error. "});
     }
     
@@ -55,13 +55,15 @@ async function passwordLogin(req, res) {
             return res.status(200).json({
                 message: "Logged in",
                 token: token,
-                uid: uid
+                uid: uid,
+                newUser: false,
             });
         } else {
             return res.status(200).json({
                 message: "New user created and logged in",
                 token: token,
-                uid: uid
+                uid: uid,
+                newUser: true,
             });
         }
     } catch (e) {
@@ -76,28 +78,46 @@ async function googleLogin(req, res) {
     
     let uid = null;
     let newUser = false;
-    // if google
-        // check using google id
-    
+    const googleId = req.user?.id;
 
+    if (!googleId) {
+        console.error("Missing google id. ");
+        return res.status(400).json({message: "Missing google id. "});
+    }
+
+    try {
+        const checkUserExists = await db.query(`
+            SELECT id
+            FROM app_users
+            WHERE google_id=$1;
+            `, [googleId]);
+        
+        if (checkUserExists.rows.length === 0) {
+            newUser = true;
+            uid = uuidv4();
+            
+            await db.query(`
+                INSERT INTO app_users
+                (id, location_id, date_of_birth, google_id)
+                VALUES ($1, null, null, $2);
+                `, [uid, googleId]);
+        } else {
+            uid = checkUserExists.rows[0].id; 
+        }
+    } catch (e) {
+        console.error("Error with user login (DB query): ", e);
+        return res.status(500).json({message: "Internal server error. "});
+    }
     
     try {
-
-        const token = jwt.sign({id: uid}, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const sessionId = uuidv4();
+        req.app.locals.sessions = req.app.locals.sessions || {};
+        req.app.locals.sessions[sessionId] = { googleId: req.user.id };
         
-        if (!newUser) {
-            return res.status(200).json({
-                message: "Logged in",
-                token: token,
-                uid: uid
-            });
-        } else {
-            return res.status(200).json({
-                message: "New user created and logged in",
-                token: token,
-                uid: uid
-            });
-        }
+        const frontendUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?sessionId=${encodeURIComponent(sessionId)}&newUser=${encodeURIComponent(newUser)}`;
+
+        return res.redirect(frontendUrl);
+        
     } catch (e) {
         console.error('Error generating JWT:', e.message);
         return res.status(500).json({message: "Error with token generation. "});
@@ -109,8 +129,7 @@ async function facebookLogin(req, res) {
     let uid = null;
     let newUser = false;
     
-    // if facebook
-        // check using fb id
+    /***********  TO DO ***********/
 
     
     try {
@@ -136,9 +155,36 @@ async function facebookLogin(req, res) {
     }
 }
 
+async function retrieveToken(req, res) {
+    const sessionId = req.query.sessionId;
+    if (!req.app.locals.sessions[sessionId]) {
+        return res.status(400).json({ message: 'Invalid or expired session ID.' });
+    }
+    let uid = null;
+    const googleId = req.app.locals.sessions[sessionId].googleId;
+    
+    try {
+        const result = await db.query(
+            `SELECT id FROM app_users WHERE google_id = $1`,
+            [googleId]
+        );
+        if (result.rows.length === 0) {
+            return null;
+        }
+        uid = result.rows[0].id; // Return the UID
+        const token = jwt.sign({ id: uid }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        delete req.app.locals.sessions[sessionId];
+        res.status(200).json({ token, uid });
+    } catch (error) {
+        console.error("Error querying database for googleId:", error);
+        res.status(500).json({ message: 'Internal server error (googleId db query).' });
+    }
+    
+}
+
 module.exports = {
     passwordLogin,
     googleLogin,
     facebookLogin,
-
+    retrieveToken,
 }

@@ -32,7 +32,6 @@ const NavigationBar = () => {
         <li>
 
           <Button className="login-button" onClick={handleLogOut}>Log out</Button>
-//           <Link to="/login" className="login-button" style={{ fontSize: '20px', color: 'black' }}>Login</Link>
 
         </li>
       </ul>
@@ -40,4 +39,5 @@ const NavigationBar = () => {
   );
 };
 
+//         <Link to="/login" className="login-button" style={{ fontSize: '20px', color: 'black' }}>Login</Link>
 export default NavigationBar;
