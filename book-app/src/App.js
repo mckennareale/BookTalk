@@ -93,7 +93,7 @@ function App() {
             } />
 
           <Route path="/test" element={<PartialBookCard />} />
-
+          <Route path="*" element={<LoginPage />} />
         </Routes>
       </div>
     </ThemeProvider>

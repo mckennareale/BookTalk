@@ -1,9 +1,7 @@
-import React, {useEffect} from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useEffect, useRef, useState} from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import validator from 'validator';
-
-import { useState } from "react"
 import { Container, Box, Typography } from "@mui/material";
 import OutlinedInput from '@mui/material/OutlinedInput';
 import TextField from '@mui/material/TextField';
@@ -18,13 +16,45 @@ import logo from '../assets/logo.png';
 
 export default function LoginPage() {
 
-//   const [userId, setUserId] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(''); 
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const { login } = useAuth(); 
   const navigate = useNavigate(); 
+  const location = useLocation();
+
+  const tokenRetrievedRef = useRef(false);
+
+
+  useEffect(() => {
+    if (tokenRetrievedRef.current) {
+      console.log("Token retrieval already completed.");
+      return;
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('sessionId');
+    const isNewUser = urlParams.get('newUser') === 'true';
+
+    if (sessionId) {
+      fetch(`${process.env.REACT_APP_API_BASE}/auth/retrieve-token?sessionId=${sessionId}`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error('Failed to retrieve token');
+          }
+          return res.json();
+        })
+        .then(({ token, uid }) => {
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('uid', uid);
+          login(token);
+          tokenRetrievedRef.current = true; 
+          navigate(isNewUser ? "/onboarding" : "/");
+        })
+        .catch((err) => console.error('Error retrieving token:', err));
+    }
+}, [login, navigate, location.search]);
+  
 
   const handleEmailChange = (e) => {
     const email = e.target.value;
@@ -70,12 +100,18 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message ); // Throw an error if the response is not ok
+        throw new Error(errData.message ); 
       }    
 
       const responseData = await response.json();
       login(responseData.token);
-      navigate('/');
+      localStorage.setItem("uid", responseData.uid);
+      
+      if (responseData.newUser) {
+        navigate("/onboarding");
+      } else {
+        navigate("/"); 
+      }
     } catch (err) {
       setError(err.message || "Something went wrong :(");
       setShowErrorAlert(true);
@@ -83,33 +119,13 @@ export default function LoginPage() {
 
   }
 
-//     signInWithGooglePopup()
-//       .then((result) => {
-//         const userName = result.user.displayName;
-//         const userEmail = result.user.email;
-//         const userProfilePic = result.user.photoURL;
-//         const userUid = result.user.uid;
-//         localStorage.setItem("name", userName);
-//         localStorage.setItem("email", userEmail);
-//         localStorage.setItem("pic", userProfilePic);
-//         localStorage.setItem("id", userUid);
-//         setUserId(userUid);
-//         console.log(userId);
-//       })
-//       .then(() => {
-//         navigate("/home", {state: {loggedIn: true}});
-//       })
-//       .catch((error) => {
-//         alert(error);
-//       });
-
-
   const handleGoogleLogin = () => {
-
+    const backendAuthUrl = `${process.env.REACT_APP_API_BASE}/login/google`;
+    window.open(backendAuthUrl, "_self");
   }
 
   const handleFacebookLogin  = () => {
-
+    // TO DO
   }
 
 
