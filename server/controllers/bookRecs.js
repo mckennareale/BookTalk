@@ -7,7 +7,7 @@ async function getBookRecs(req, res) {
     const book_id = req.query.book_id;
 
     const user_id = '15';
-    const limit = 5;
+    const num_recs_to_return = 10;
 
     if (!user_id) {
         return res.status(400).json({ message: 'Missing or invalid user ID' });
@@ -22,41 +22,67 @@ async function getBookRecs(req, res) {
 
     let query;
     switch (criteria) {
-        case 'top_categories':
+        // because you loved 'author name' - returns top rated books from ONE author that the app user loves the most
+        case 'top_authors':
             query = `
                 WITH top_app_user_author as
                 (
-                SELECT a.authors, COUNT(hr.book_id) as review_count FROM has_reviewed hr
+                SELECT a.authors as top_authors, COUNT(hr.book_id) as review_count FROM has_reviewed hr
                 JOIN authors a on hr.book_id = a.id
-                WHERE hr.user_id = ${user_id}
+                WHERE hr.user_id = '15'
                 GROUP BY a.authors
                 ORDER BY review_count DESC
                 LIMIT 5
                 )
-                SELECT ab.id, ar.review_score FROM amazon_books ab
+                SELECT ab.id, a.authors, ab.title,ab.image,ab.classification, ab.categories, ROUND(AVG(ar.review_score)) as avg_rating
+                FROM amazon_books ab
                 LEFT JOIN books_rating ar on ab.id = ar.book_id
                 LEFT JOIN authors a on ab.id = a.id
-                WHERE a.authors IN (SELECT authors from top_app_user_author)
-                GROUP BY ab.id, ab.authors, ar.review_score
-                ORDER BY ar.review_score
-                LIMIT ${limit};
-                `;
+                WHERE a.authors IN (SELECT top_authors from top_app_user_author)
+                GROUP BY ab.id, a.authors
+                ORDER BY AVG(ar.review_score) DESC NULLS LAST
+                LIMIT ${num_recs_to_return};
+                `
             break;
-        case 'top_authors':
-            query = ``;
+            // because you loved 'category name' books - returns top rated books from ONE category that the app user loves the most
+        case 'top_categories':
+            query = `
+            WITH top_app_user_categories as
+                (
+                SELECT ab.categories as top_categories, COUNT(hr.book_id) as review_count
+                FROM has_reviewed hr
+                JOIN amazon_books ab on hr.book_id = ab.id
+                WHERE hr.user_id = '15'
+                GROUP BY ab.categories
+                ORDER BY review_count DESC
+                LIMIT 1
+                )
+                SELECT ab.id, ab.title,ab.image,ab.classification, ab.categories, ar.review_score as avg_rating FROM amazon_books ab
+                LEFT JOIN books_rating ar on ab.id = ar.book_id
+                WHERE ab.categories IN (SELECT top_categories from top_app_user_categories)
+                AND ar.review_score is not null
+                GROUP BY ab.categories, ab.id, ar.review_score
+                ORDER BY ar.review_score DESC
+                LIMIT ${num_recs_to_return};
+            `;
             break;
-        case 'similar_age':
-            query = ``;
         case 'classification':
-            query = ``;
+            query = `
+            `;
             break;
         default:
             return res.status(400).json({ message: 'Invalid criteria' });
     }
 
     try {
+        console.log('Executing query:', query);
         const result = await db.query(query); // Execute the query
+        console.log('Query result:', result.rows); // Log the result for debugging
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'No recommendations found' });
+        }
         return res.status(200).json({ data: result.rows }); // Send the results
+        
     } catch (error) {
         console.error('Error executing query:', error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -66,6 +92,9 @@ async function getBookRecs(req, res) {
 
 // Route 11 - GET /period_books_rec
 async function getPeriodBookRecs(req, res) {
+    // TODO: add limit in the query 
+    const num_recs_to_return = 1;
+   
     try {
         const periodResult = await db.query(`
             WITH period_lover_users AS (
@@ -87,7 +116,6 @@ async function getPeriodBookRecs(req, res) {
                 HAVING COUNT(*) > 1
                 ORDER BY num_books_reviewed DESC
             ),
-            -- Setting period for each book
             book_reviews_with_periods AS (
                 SELECT
                     br.user_id,
@@ -108,7 +136,6 @@ async function getPeriodBookRecs(req, res) {
                 FROM bx_reviews br
                 JOIN bx_books bb ON br.isbn = bb.isbn
             ),
-            -- Selecting a period lover for each period from the list (introducing randomness in selection)
             selected_period_lover AS (
                 SELECT
                     plu.user_id,
