@@ -6,7 +6,7 @@ async function getBookRecs(req, res) {
     const criteria = req.query.criteria;
     const book_id = req.query.book_id;
 
-    const user_id = '15';
+    const user_id = 'A1FQM00JX1FK4R';
     const num_recs_to_return = 10;
 
     if (!user_id) {
@@ -29,7 +29,7 @@ async function getBookRecs(req, res) {
                 (
                 SELECT a.authors as top_authors, COUNT(hr.book_id) as review_count FROM has_reviewed hr
                 JOIN authors a on hr.book_id = a.id
-                WHERE hr.user_id = '15'
+                WHERE hr.user_id = '${user_id}'
                 GROUP BY a.authors
                 ORDER BY review_count DESC
                 LIMIT 5
@@ -52,7 +52,7 @@ async function getBookRecs(req, res) {
                 SELECT ab.categories as top_categories, COUNT(hr.book_id) as review_count
                 FROM has_reviewed hr
                 JOIN amazon_books ab on hr.book_id = ab.id
-                WHERE hr.user_id = '15'
+                WHERE hr.user_id = '${user_id}'
                 GROUP BY ab.categories
                 ORDER BY review_count DESC
                 LIMIT 1
@@ -68,6 +68,54 @@ async function getBookRecs(req, res) {
             break;
         case 'classification':
             query = `
+            WITH top_app_user_classification AS (
+            SELECT ab.classification as top_classification, COUNT(hr.book_id) as review_count
+            FROM has_reviewed hr
+            JOIN amazon_books ab on hr.book_id = ab.id
+            JOIN authors a on ab.id = a.id
+            WHERE hr.user_id = '${user_id}'
+            GROUP BY ab.classification
+            ORDER BY review_count DESC
+            LIMIT 1)
+            SELECT ab.id, ab.title, ab.image, ab.classification, AVG(br.review_score)
+            FROM amazon_books ab
+            LEFT JOIN books_rating br on ab.id = br.book_id
+            LEFT JOIN authors a on ab.id = a.id
+            WHERE
+            CASE
+            --        Children case --- more from the same category
+                WHEN (SELECT top_classification FROM top_app_user_classification) = 'children' THEN
+                        ab.classification = 'children'
+                        AND ab.published_date > date_part('year', CURRENT_DATE) - 15
+                        AND ab.categories in (
+                            SELECT categories from has_reviewed hr
+                            LEFT JOIN amazon_books ab on hr.book_id = ab.id
+                            WHERE ab.classification = 'children'
+                            )
+                        AND br.review_score is not null
+                        AND ab.id NOT IN (SELECT book_id from has_reviewed where user_id = '${user_id}')
+                -- YA case -- more from the same author
+                WHEN (SELECT top_classification FROM top_app_user_classification) = 'YA' THEN
+                    classification = 'YA'
+                    AND published_date >= date_part('year', CURRENT_DATE) - 15
+                        AND a.authors in (
+                            SELECT a.authors FROM has_reviewed hr
+                            LEFT JOIN amazon_books ab on hr.book_id = ab.id
+                            LEFT JOIN authors a on ab.id = a.id
+                            WHERE hr.user_id = '${user_id}'
+                            AND ab.classification = 'YA'
+                        )
+                        AND ab.id NOT IN (SELECT book_id from has_reviewed where user_id = '${user_id}')
+                        AND br.review_score IS NOT NULL
+                -- Adult case --- just top bestsellers
+                WHEN (SELECT top_classification FROM top_app_user_classification) = 'adult' THEN
+                    classification = 'adult'
+                        AND br.review_score IS NOT NULL
+                        AND ab.id NOT IN (SELECT book_id from has_reviewed where user_id = '${user_id}')
+            END
+            GROUP BY ab.id, ab.title, ab.image, ab.classification
+            ORDER BY AVG(br.review_score) DESC
+            LIMIT 10;
             `;
             break;
         default:

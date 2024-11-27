@@ -4,6 +4,7 @@ const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const passportSetup = require("./passport");
 const passport = require("passport");
+require('dotenv').config();
 
 const booksControllers = require('./controllers/books');
 const bookRecsControllers = require('./controllers/bookRecs');
@@ -78,4 +79,5 @@ baseRouter.use((req, res) => {res.status(404).send('Not Found!')});
 const port = process.env.SERVER_PORT;
 app.listen(port, ()=> {
     console.log(`Server running on port ${port}`);
+    console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
 })
