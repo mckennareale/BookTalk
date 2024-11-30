@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import validator from 'validator';
 import { Container, Box, Typography } from "@mui/material";
 import OutlinedInput from '@mui/material/OutlinedInput';
+import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -53,7 +54,7 @@ export default function LoginPage() {
         })
         .catch((err) => console.error('Error retrieving token:', err));
     }
-}, [login, navigate, location.search]);
+  }, [login, navigate, location.search]);
   
 
   const handleEmailChange = (e) => {
@@ -130,7 +131,6 @@ export default function LoginPage() {
 
 
   return(
-    // <div>Login Page</div>
     <Container disableGutters maxWidth="md" >
       <Box
         flexDirection="column"
@@ -138,29 +138,32 @@ export default function LoginPage() {
         sx={{
           pl: 2,
           pr: 2,
-          pt: 3,
-          pb: 8,
-          bgcolor: '#ffffff', //bdf3cb
+          pt: 20,
+          // pb: 10,
           height: '100vh',
           overflow: 'auto',
         }}
       >
-        <Box
+        {/* <Box
           component="img"
           sx={{
-            height: 350,
-            width: 350,
+            height: 300,
+            width: 300,
           }}
           alt="Logo Here!"
           src={logo}
-        />
-        <Typography variant="h2">Book App Name Here</Typography>
-        <Typography variant="h3" mt={1}>...tag line here...</Typography>
+        /> */}
+        <Typography variant="h1" sx={{ color: 'primary.main' }}>welcome to BookTalk  :) </Typography>
         <br></br>
-        <Stack direction="column" spacing={2} mt={6}>
+        <Typography variant="h3" sx={{ color: 'primary.main' }}>please log in or sign up below</Typography>
+        <br></br>
+        <Stack direction="column" spacing={4} mt={10}>
           <TextField id="outlined-basic" label="Email" variant="outlined"  onChange={handleEmailChange}/> 
           <TextField id="outlined-password-input" label="Password" type="password" onChange={handlePasswordChange}/>
-          <Button variant="contained" size="large" onClick={handlePasswordLogin}>Login / Sign Up with Email & Password</Button>
+          <Button variant="contained" size="large" onClick={handlePasswordLogin}>Login with Email & Password</Button>
+          <Divider>
+            <Typography variant="body2" sx={{ color: 'primary.main' }}> OR </Typography>
+          </Divider>
           <Button variant="outlined" size="large" startIcon={<GoogleIcon />} onClick={handleGoogleLogin}>Login / Sign Up with Google</Button>
           <Button variant="outlined" size="large" startIcon={<FacebookIcon />} onClick={handleFacebookLogin}>Login / Sign Up with Facebook</Button>
           {showErrorAlert && (
