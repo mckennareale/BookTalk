@@ -1,9 +1,8 @@
 import './App.css';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import * as React from 'react';
 
 import '@fontsource-variable/outfit'; // Supports weights 100-900
-import { red } from '@mui/material/colors';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 
@@ -21,48 +20,78 @@ import PartialBookCard from './components/PartialBookCard';
 const theme = createTheme({
   typography: {
     fontFamily: "'Outfit Variable', sans-serif",
+    h1: {
+      fontSize: 60,
+      fontWeight: 400,
+    },
+    h2: {
+      fontSize: 40,
+      fontWeight: 400,
+    },
+    h3: {
+      fontSize: 30,
+      fontWeight: 300,
+    },
+    h4: {
+      fontSize: 22,
+      fontWeight: 400,
+    },
+    body1: {
+      fontSize: 16,
+      fontWeight: 400,
+    },
+    body2: {
+      fontSize: 16,
+      fontWeight: 300,
+    },
+    caption: {
+      fontSize: 10,
+    },
+    button: {
+      fontSize: 10,
+      fontWeight: 600,
+    },
   },
-  h1: {
-    fontSize: 60,
-    fontWeight: 600,
-  },
-  h2: {
-    fontSize: 20,
-    fontWeight: 400,
-  },
-  body1: {
-    fontSize: 16,
-    fontWeight: 400,
-  },
-  caption: {
-    fontSize: 10,
-  },
-  button: {
-    fontSize: 10,
-    fontWeight: 600,
-  },
+  
   palette: {
-    // background: {
-    //   paper: '#FCF5EF',
-    // },
+    background: {
+      paper: '#FCF5EF',
+    },
     text: {
       primary: '#000000',
-      // secondary: '#ffffff',
+      secondary: '#A44A3F',
+
     },
     primary: {
-      main: '#000000',
+      main: '#A44A3F',
+      contrastText: '#ffffff'
     },
     secondary: {
-      main: '#000000',
+      main: '#F19C79',
+    },
+  },
+
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 1000,
+      ml: 1250, 
+      lg: 1480,
+      xl: 1680,
     },
   },
 });
 
 function App() {
+
+  const location = useLocation();
+  const showNavBar = location.pathname !== "/login"; // Add other paths if needed
+
   return (
     <ThemeProvider theme={theme}>
-      <NavigationBar />
       <div className="App">
+        {showNavBar && <NavigationBar />}
         <Routes>
           <Route path="/" element={
             <ProtectedRoute>
@@ -93,7 +122,7 @@ function App() {
             } />
 
           <Route path="/test" element={<PartialBookCard />} />
-
+          <Route path="*" element={<LoginPage />} />
         </Routes>
       </div>
     </ThemeProvider>

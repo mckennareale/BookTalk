@@ -1,6 +1,10 @@
+const session = require('express-session');
 const express = require('express');
 const cors = require('cors');
 const { body, validationResult } = require('express-validator');
+const passportSetup = require("./passport");
+const passport = require("passport");
+require('dotenv').config();
 
 const booksControllers = require('./controllers/books');
 const bookRecsControllers = require('./controllers/bookRecs');
@@ -19,6 +23,18 @@ app.use(logger);
 app.use(cors({
   origin: '*',
 }));
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'defaultsecret', 
+    resave: false, // Avoid resaving session if not modified
+    saveUninitialized: false, // Only save sessions when needed
+    cookie: {
+      secure: false, // Use `true` if you're serving over HTTPS
+      maxAge: 1000 * 60 * 60 * 24 // Optional: Set session expiry (1 day)
+    }
+  }));  
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 /***** Set up routes *****/ 
 const baseRouter = express.Router();
@@ -35,13 +51,26 @@ baseRouter.get('/category_recs', categoryRecsControllers.getCategoryRecs); // Ro
 // User books
 baseRouter.post('/users/books', userBooksControllers.addUserBooks); // Route 14
 baseRouter.get('/users/books', userBooksControllers.getUserBooks); // Route 15
-// User Auth
-baseRouter.post('/login/password',
+// User Auth - password
+baseRouter.post('/login/password', // Route 16
     body('email').notEmpty().isEmail(), 
     body('password').notEmpty(),
     userAuthControllers.passwordLogin);
-baseRouter.post('/login/google', userAuthControllers.googleLogin);
-baseRouter.post('/login/facebook', userAuthControllers.facebookLogin);
+// User Auth - google
+baseRouter.get('/login/google',
+    passport.authenticate('google', { scope:
+        [ 'email', 'profile' ] }
+  ));
+baseRouter.get( '/login/google/callback',
+    passport.authenticate( 'google', { session: false }),
+    (req, res) => {
+        userAuthControllers.googleLogin(req, res);
+    }
+);
+baseRouter.get('/auth/retrieve-token', userAuthControllers.retrieveToken);
+
+// User Auth - facebook 
+/*******  TO DO ********/
 
 
 // For all undefined routes
@@ -50,4 +79,5 @@ baseRouter.use((req, res) => {res.status(404).send('Not Found!')});
 const port = process.env.SERVER_PORT;
 app.listen(port, ()=> {
     console.log(`Server running on port ${port}`);
+    console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
 })
