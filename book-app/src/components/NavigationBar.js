@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link for navigation
-import logo from '../assets/header_hgliph.png'; // Adjust the path if necessary
-import '../css/NavigationBar.css'; // Optional: Import a CSS file for styling
+import { Link } from 'react-router-dom'; 
+import logo from '../assets/logo_white.png'; 
+import icon from '../assets/icon_white.png';
+import '../css/NavigationBar.css'; 
 import { useAuth } from '../context/AuthContext';
 import Button from '@mui/material/Button';
 import AppBar from '@mui/material/AppBar';
@@ -46,16 +47,30 @@ const NavigationBar = () => {
     <Box sx={{ flexGrow: 1 }}>
     <AppBar position="static">
       <Toolbar>
-          <Box > 
+          <Box 
+            sx={{display: { xs: 'none', md: 'flex' }}}> 
           <Link to="/">
-            <img src={logo} alt="Logo" className="logo" />
+            <img 
+              src={logo} 
+              alt="book talk" 
+              className="logo" />
+          </Link>
+          </Box>
+
+          <Box 
+            sx={{display: { xs: 'flex', md: 'none' }}}> 
+          <Link to="/">
+            <img 
+              src={icon} 
+              alt="book talk" 
+              className="icon" />
           </Link>
           </Box>
 
           <Box sx={{ flexGrow: 1,  
             display: { xs: 'none', md: 'flex' },
             minWidth: { md: '100px', ml: '350px', lg: '550px', xl: '800px' },
-            backgroundColor: 'lightblue' }}/> 
+            }}/> 
           
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
           <Box sx={{ flexGrow: 1, pl: 2, pr: 2 }}> 

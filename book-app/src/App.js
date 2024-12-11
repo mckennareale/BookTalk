@@ -36,6 +36,11 @@ const theme = createTheme({
       fontSize: 22,
       fontWeight: 400,
     },
+    h5: {
+      fontSize: 30,
+      fontWeight: 400,
+    },
+    
     body1: {
       fontSize: 16,
       fontWeight: 400,
@@ -86,7 +91,7 @@ const theme = createTheme({
 function App() {
 
   const location = useLocation();
-  const showNavBar = location.pathname !== "/login"; // Add other paths if needed
+  const showNavBar = location.pathname !== "/login" && location.pathname !== "/onboarding"; 
 
   return (
     <ThemeProvider theme={theme}>

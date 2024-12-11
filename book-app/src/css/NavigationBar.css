@@ -1,45 +1,12 @@
 @import './variables.css';
 
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  background-color: #CEC075; /* Light coloured background */
-
-  padding: 10px 20px; /* Padding */
-  color: var(--text-color); /* Link color */
-  font-family: var(--font-family); /* Recoleta font */
-  font-weight: lighter; /* Light font weight */
-}
 
 .logo {
-  height: 50px; /* Adjust logo size */
+  height: 50px; 
+  padding: 15px 0;
 }
 
-.nav-links {
-  list-style: none; /* Remove bullet points */
-  display: flex; /* Horizontal layout */
-  margin: 0; /* Remove default margin */
-  padding: 0; /* Remove default padding */
-}
-
-.nav-links li {
-  margin-left: 20px; /* Space between links */
-}
-
-.nav-links a {
-  color: var(--text-color); /* Link color */
-  text-decoration: none; /* Remove underline */
-}
-
-.nav-links a:hover {
-  text-decoration: underline; /* Underline on hover */
-}
-
-.login-button {
-  background-color: #007bff; /* Button color */
-  color: white; /* Button text color */
-  padding: 5px 10px; /* Button padding */
-  border-radius: 5px; /* Rounded corners */
+.icon {
+  height: 50px;
+  padding: 15px 0;
 }
