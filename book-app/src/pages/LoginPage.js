@@ -11,8 +11,8 @@ import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
+import logo from '../assets/logo_color.png'; 
 
-import logo from '../assets/logo.png';
 
 
 export default function LoginPage() {
@@ -144,16 +144,25 @@ export default function LoginPage() {
           overflow: 'auto',
         }}
       >
-        {/* <Box
-          component="img"
-          sx={{
-            height: 300,
-            width: 300,
-          }}
-          alt="Logo Here!"
-          src={logo}
-        /> */}
-        <Typography variant="h1" sx={{ color: 'primary.main' }}>welcome to BookTalk  :) </Typography>
+        
+        <Typography 
+          variant="h1" 
+          sx={{ 
+            color: 'primary.main',
+            
+            }}>
+          welcome to
+          <Box
+            component="img"
+            sx={{
+              height: 80, // Adjust logo height
+              width: 'auto', // Maintain aspect ratio
+              marginLeft: 2, // Add space between the logo and text
+            }}
+            alt="book talk :)"
+            src={logo}
+          />
+        </Typography>
         <br></br>
         <Typography variant="h3" sx={{ color: 'primary.main' }}>please log in or sign up below</Typography>
         <br></br>
