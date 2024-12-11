@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, useCallback} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import validator from 'validator';
@@ -12,22 +12,92 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Autocomplete from '@mui/material/Autocomplete';
+import CircularProgress from '@mui/joy/CircularProgress';
 import dayjs from 'dayjs';
 import Alert from '@mui/material/Alert';
 import logo from '../assets/logo_color.png'; 
 import countries from '../helpers/countries';
-
+import { customFetch } from '../utils/customFetch';
 
 const OnboardingPage = () => {
 
   const [birthday, setBirthday] = useState(dayjs());
   const [cities, setCities] = useState([]);
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
+  const [city, setCity] = useState(null);
+  const [country, setCountry] = useState(null);
+  const [bookOptions, setBookOptions] = useState([]);
+  const [selectedBooks, setSelectedBooks] = useState([]);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
-  const [error, setError] = useState('');
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingBooks, setLoadingBooks] = useState(false);
+
+  const [error, setError] = useState(null);
+  const [searchCitiesInput, setSearchCitiesInput] = useState("");
+  const [searchBooksInput, setSearchBooksInput] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = () => {}
+
+  const fetchCitiesList = useCallback(async (searchTerm) => {
+    if (!country) return;
+
+    try {
+      setLoadingCities(true);
+      const encodedCountry = encodeURIComponent(country);
+      const encodedSearchTerm = encodeURIComponent(searchTerm);
+      const responseJson = await customFetch(
+        `${process.env.REACT_APP_API_BASE}/cities/${encodedCountry}?query=${encodedSearchTerm}`,
+        {},
+        navigate
+      );
+      setCities(responseJson.cities_list || []);
+    } catch (err) {
+      setError(err.message || "Error fetching list of cities");
+    } finally {
+      setLoadingCities(false);
+    }
+  }, [country, navigate]);
+
+  const fetchBooksList = useCallback(async (bookSearchTerm) => {
+    if (!bookSearchTerm) { return; }
+
+    try {
+      setLoadingBooks(true);
+      const encodedSearchTerm = encodeURIComponent(bookSearchTerm);
+      const data = {
+        data: {
+          title: encodedSearchTerm
+        }
+      }
+      const responseJson = await customFetch(
+        `${process.env.REACT_APP_API_BASE}/books/search`,
+        {
+          method: 'POST', 
+          body: JSON.stringify(data),
+        },
+        navigate
+      );
+      setBookOptions(responseJson.data || []);
+    } catch (err) {
+      setError(err.message || "Error fetching list of books");
+    } finally {
+      setLoadingBooks(false);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchCitiesList(searchCitiesInput);
+    }, 300); 
+    return () => clearTimeout(timeoutId); 
+  }, [searchCitiesInput, fetchCitiesList]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchBooksList(searchBooksInput);
+    }, 300); 
+    return () => clearTimeout(timeoutId); 
+  }, [searchBooksInput, fetchBooksList]);
 
   return (
     <Container 
@@ -43,7 +113,6 @@ const OnboardingPage = () => {
           pl: 2,
           pr: 2,
           pt: 10,
-          // pb: 10,
           height: '100vh',
           overflow: 'auto',
         }}
@@ -111,15 +180,38 @@ const OnboardingPage = () => {
                 disablePortal
                 options={countries}
                 onChange={(event, newValue) => setCountry(newValue)}
-                renderInput={(params) => <TextField {...params} label="Country" fullWidth />}
+                renderInput={(params) => <TextField {...params} label="country" fullWidth />}
               />
-            <Autocomplete
+
+            {country && (
+              <Autocomplete
                 disablePortal
                 options={cities}
-                onChange={(event, newValue) => setCity(newValue)}
-                renderInput={(params) => <TextField {...params} label="City" fullWidth />}
+                getOptionLabel={(option) => option.city || ""}
+                isOptionEqualToValue={(option, value) => option.city_id === value.city_id} 
+                loading={loadingCities}
+                onInputChange={(event, newInputValue) => setSearchCitiesInput(newInputValue)}
+                onChange={(event, newValue) => {setCity(newValue?.city_id || null);}}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="city"
+                    fullWidth
+                    slots={{
+                      endAdornment: (
+                        <>
+                          {loadingCities ? <CircularProgress color="primary" size={20} /> : null}
+                          {params.InputProps?.endAdornment || null}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
               />
-            
+            )}
+
+            {/* {city && <p>Selected City ID: {city}</p>} */}
+
             <Typography 
               variant="h4" 
               sx={{ 
@@ -127,7 +219,36 @@ const OnboardingPage = () => {
                 textAlign: 'left' 
                 }}>
               what have you been reading lately? </Typography>
-            <TextField id="outlined-basic" label="Input 3 books you read" variant="outlined"/> 
+              <Autocomplete
+                multiple
+                disablePortal
+                options={bookOptions}
+                getOptionLabel={(option) => option.title || ""}
+                isOptionEqualToValue={(option, value) => option.isbn === value.isbn} 
+                loading={loadingBooks}
+                onInputChange={(event, newInputValue) => setSearchBooksInput(newInputValue)}
+                onChange={(event, newValue) => {setSelectedBooks(newValue?.isbn || null);}}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="start typing to input books"
+                    fullWidth
+                    error={selectedBooks.length < 3 || selectedBooks.length > 8}
+                    helperText={
+                      (selectedBooks.length < 3 || selectedBooks.length > 8) 
+                        ? "please select 3 to 8 books" : ""
+                    }
+                    slots={{
+                      endAdornment: (
+                        <>
+                          {loadingBooks ? <CircularProgress color="primary" size={20} /> : null}
+                          {params.InputProps?.endAdornment || null}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
             <br></br>
 
             <Button variant="contained" size="large" onClick={handleSubmit}>enter your library</Button>
