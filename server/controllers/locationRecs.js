@@ -5,29 +5,41 @@ const db = require('../db');
 async function getLocationRecs(req, res) {
 
     // get user id
-    const uid = req.userId;
-    if (!uid) {
-        return res.status(401).json({ message: 'Unauthorized user' });
-    }
+    const uid = '15';
+    // if (!uid) {
+    //     return res.status(401).json({ message: 'Unauthorized user' });
+    // }
 
     try {
         // get longitude, latitude and date_of_birth from app_users for the specific user
-        const userDataQuery = await query(`
+        const userDataQuery = await db.query(`
             SELECT 
                 c.longitude, 
                 c.latitude, 
                 u.date_of_birth
-            FROM app_users u INNER JOIN cities c ON u.location_id = c.id
-            WHERE u.uid = $1;
+            FROM app_users u JOIN cities c ON u.location_id = c.setting_id
+            WHERE u.id = $1;
         `, [uid]);
-    
         if (userDataQuery.rows.length === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
+
+        console.log("runs first query")
     
         const { longitude, latitude, date_of_birth: dob } = userDataQuery.rows[0];
         console.log(`Longitude: ${longitude}, Latitude: ${latitude}, Date of Birth: ${dob}`);
         
+        // Ensure longitude and latitude are numbers
+        const long = parseFloat(longitude);
+        const lat = parseFloat(latitude);
+        
+        // Validate that the values are valid numbers
+        if (isNaN(long) || isNaN(lat)) {
+            return res.status(400).json({ message: 'Invalid coordinates' });
+        }
+        
+        console.log(`Longitude: ${long}, Latitude: ${lat}`);
+
         // get userAge 
         const birthDate = new Date(dob);
         const today = new Date();
@@ -37,6 +49,7 @@ async function getLocationRecs(req, res) {
             age--;
         }
         console.log(`User Age: ${age}`);
+        console.log("gets to calculating age");
 
         const locationRecsResult = await db.query(`
             WITH similar_users AS (
@@ -44,8 +57,8 @@ async function getLocationRecs(req, res) {
                 FROM bx_users
                 JOIN cities AS bx_city ON bx_users.location_id = bx_city.setting_id
                 WHERE bx_users.age BETWEEN ($1 - 5) AND ($1 + 5)
-                    AND bx_city.latitude BETWEEN ($2 - 5) AND ($2 + 5)
-                    AND bx_city.longitude BETWEEN ($3 - 5) AND ($3 + 5)
+                    AND bx_city.latitude BETWEEN ($2::numeric(10,7) - 5) AND ($2::numeric(10,7) + 5)
+                    AND bx_city.longitude BETWEEN ($3::numeric(10,7) - 5) AND ($3::numeric(10,7) + 5)
             ),
             similar_categories AS (
                 SELECT bx_books.Category, COUNT(*) AS category_count
@@ -89,11 +102,11 @@ async function getLocationRecs(req, res) {
             )
             SELECT c.setting_id, c.city, c.country_name, c.latitude, c.longitude, COUNT(*) AS num_books_set_in
             FROM cities c
-            JOIN similar_user_top_books b ON c.city = b.setting_id
+            JOIN similar_user_top_books b ON c.setting_id = b.setting_id
             GROUP BY c.setting_id, c.city, c.country_name, c.latitude, c.longitude
             ORDER BY num_books_set_in DESC
             LIMIT 5;
-        `, [age, latitude, longitude]);
+        `, [age, lat, long]);
         
         // Check if there are any results
         if (locationRecsResult.rows.length === 0) {
