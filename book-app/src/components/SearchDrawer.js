@@ -1,10 +1,27 @@
 import React, { useState } from 'react';
-import { Drawer, List, ListItem, ListItemText, Switch, TextField, Button, Autocomplete, FormControl, FormControlLabel, RadioGroup, Radio } from '@mui/material';
+import { 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Switch, 
+  TextField, 
+  Button, 
+  Autocomplete, 
+  FormControl, 
+  FormControlLabel, 
+  RadioGroup, 
+  Radio,
+  Typography,
+  useTheme,
+  Box
+} from '@mui/material';
 import topCategories from '../helpers/top_categories';
 import authors from '../helpers/authors';
 import time_periods from '../helpers/time_periods';
 
 const SearchDrawer = ({ open, toggleDrawer, applyFilters }) => {
+  const theme = useTheme();
   const [timePeriod, setTimePeriod] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('');
@@ -19,52 +36,74 @@ const SearchDrawer = ({ open, toggleDrawer, applyFilters }) => {
       author,
       film: filmAdaptation,
     };
-    applyFilters(filters); // Pass filters to parent
+    applyFilters(filters);
+  };
+
+  const handleClearFilters = () => {
+    setTimePeriod('');
+    setSelectedCategory(null);
+    setSelectedAgeGroup('');
+    setAuthor('');
+    setFilmAdaptation(false);
+    toggleDrawer(false);
   };
 
   return (
-    <Drawer anchor="left" open={open} onClose={toggleDrawer(false)}>
-      <div
+    <Drawer 
+      anchor="left" 
+      open={open} 
+      onClose={toggleDrawer(false)}
+      PaperProps={{
+        sx: {
+          backgroundColor: theme.palette.background.paper
+        }
+      }}
+    >
+      <Box
         role="presentation"
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
-        style={{ width: 250, padding: '10px' }}
+        sx={{ 
+          width: 250, 
+          padding: '10px',
+        }}
       >
         <List>
           <ListItem>
-            <ListItemText primary="Select Filters" style={{ fontSize: '24px', fontWeight: 'bold' }} />
+            <Typography variant="h4">Select Filters</Typography>
           </ListItem>
-          <ListItem style={{ marginTop: '5px' }}>
-            <ListItemText primary="Author" />
+          
+          <ListItem sx={{ mt: 1 }}>
+            <Typography variant="body1">Author</Typography>
           </ListItem>
-          <div style={{ width: '100%' }}>
-              <Autocomplete
-                disablePortal
-                options={authors}
-                value={author}
-                onChange={(event, newValue) => setAuthor(newValue)}
-                renderInput={(params) => <TextField {...params} label="Choose author" fullWidth />}
-              />
-            </div>
-          <ListItem style={{ marginTop: '5px' }}>
-            <ListItemText primary="Category" />
+          <Box sx={{ width: '90%', px: 2 }}>
+            <Autocomplete
+              disablePortal
+              options={authors}
+              value={author}
+              onChange={(event, newValue) => setAuthor(newValue)}
+              renderInput={(params) => <TextField {...params} label="Choose author" fullWidth />}
+            />
+          </Box>
+
+          <ListItem sx={{ mt: 1 }}>
+            <Typography variant="body1">Category</Typography>
           </ListItem>
-          <ListItem style={{ marginBottom: '10px' }}>
-            <div style={{ width: '100%' }}>
-              <Autocomplete
-                disablePortal
-                options={topCategories}
-                value={selectedCategory}
-                onChange={(event, newValue) => setSelectedCategory(newValue)}
-                renderInput={(params) => <TextField {...params} label="Choose categories" fullWidth />}
-              />
-            </div>
+          <Box sx={{ width: '90%', px: 2, mb: 1 }}>
+            <Autocomplete
+              disablePortal
+              options={topCategories}
+              value={selectedCategory}
+              onChange={(event, newValue) => setSelectedCategory(newValue)}
+              renderInput={(params) => <TextField {...params} label="Choose categories" fullWidth />}
+            />
+          </Box>
+
+          <ListItem sx={{ mt: 1 }}>
+            <Typography variant="body1">Classification</Typography>
           </ListItem>
-          <ListItem style={{ marginTop: '5px' }}>
-            <ListItemText primary="Classification" />
-          </ListItem>
-          <ListItem style={{ marginBottom: '10px' }}>
-            <FormControl component="fieldset" style={{ marginLeft: '20px' }}>
+          <ListItem sx={{ mb: 1 }}>
+            <FormControl component="fieldset" sx={{ ml: 2 }}>
               <RadioGroup
                 aria-label="age-group"
                 value={selectedAgeGroup}
@@ -76,36 +115,43 @@ const SearchDrawer = ({ open, toggleDrawer, applyFilters }) => {
               </RadioGroup>
             </FormControl>
           </ListItem>
-          <ListItem style={{ marginTop: '5px' }}>
-            <ListItemText primary="Time Period" />
+
+          <ListItem sx={{ mt: 1 }}>
+            <Typography variant="body1">Time Period</Typography>
           </ListItem>
-          <ListItem style={{ marginBottom: '10px' }}>
-          <div style={{ width: '100%' }}>
-              <Autocomplete
-                disablePortal
-                options={time_periods}
-                value={timePeriod}
-                onChange={(event, newValue) => setTimePeriod(newValue)}
-                renderInput={(params) => <TextField {...params} label="Choose time period" fullWidth />}
-              />
-            </div>
-          </ListItem>
-          <ListItem style={{ marginTop: '5px' }}>
-            <ListItemText primary="Film Adaptation" />
-            <div>
+          <Box sx={{ width: '90%', px: 2, mb: 1 }}>
+            <Autocomplete
+              disablePortal
+              options={time_periods}
+              value={timePeriod}
+              onChange={(event, newValue) => setTimePeriod(newValue)}
+              renderInput={(params) => <TextField {...params} label="Choose time period" fullWidth />}
+            />
+          </Box>
+
+          <ListItem sx={{ mt: 1 }}>
+            <Typography variant="body1">Film Adaptation</Typography>
             <Switch onChange={(e) => setFilmAdaptation(e.target.checked)} />
-            </div>
           </ListItem>
         </List>
-        <Button
-        variant="contained"
-        color="primary"
-        onClick={handleApplyFilters}
-        style={{ margin: '10px' }}
-      >
-        Apply Filters
-      </Button>
-      </div>
+        
+        <Box sx={{ display: 'flex', gap: 1, m: 1 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleApplyFilters}
+          >
+            Apply Filters
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleClearFilters}
+          >
+            Clear Filters
+          </Button>
+        </Box>
+      </Box>
     </Drawer>
   );
 };
