@@ -1,4 +1,4 @@
-import { query } from '../db';
+const db = require('../db');
 
 // Route 9 - GET /books/set_in_location_recs
 // 

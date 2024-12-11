@@ -34,7 +34,7 @@ async function getBookFullInfo(req, res) {
         }
 
         const authorsResult = await db.query(`
-            SELECT authors
+            SELECT DISTINCT authors
             FROM authors
             WHERE id = $1
             `, [bookId]);
@@ -61,7 +61,21 @@ async function getBookFullInfo(req, res) {
             authors: authors,
             publisher: bookResult.rows[0].publisher,
             published_date: bookResult.rows[0].published_date,
-            category: bookResult.rows[0].categories,
+            category: (() => {
+                let categories = bookResult.rows[0].categories;
+                if (typeof categories === 'string') {
+                    try {
+                        categories = categories.replace(/'/g, '"');
+                        categories = JSON.parse(categories); // Parse as JSON
+                    } catch (e) {
+                        console.error('Error parsing categories:', e);
+                    }
+                }
+                if (Array.isArray(categories)) {
+                    return categories.length === 1 ? categories[0] : categories.join(', ');
+                }
+                return categories || 'Unknown';
+            })(),
             avg_rating: bookResult.rows[0].avg_rating,
             film_name: bookResult.rows[0].film_name,
             avg_price: bookResult.rows[0].avg_price,

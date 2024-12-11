@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; 
 import { customFetch } from '../utils/customFetch';
 import { useNavigate } from 'react-router-dom';
+import { Container, Box, Typography } from "@mui/material";
+
 
 const BookPage = () => {
   const {bookId} = useParams(); // Get bookId from URL parameters
@@ -50,8 +52,11 @@ const BookPage = () => {
   if (error) return <div>Error: {error}</div>; // Error state
 
   return (
-
-    <div className="book-page-container" style={{ display: 'flex', alignItems: 'flex-start' }}>
+    <Typography 
+    variant="h1" 
+    sx={{ 
+      }}>
+        <div className="book-page-container" style={{ display: 'flex', alignItems: 'flex-start' }}>
       <img src={book.image} alt={book.title} className="book-image" style={{ width: '500px',height:'700px', marginRight: '60px' , marginLeft: '60px', marginTop: '60px'
        }} />
       <div>
@@ -64,8 +69,7 @@ const BookPage = () => {
         {book.avg_rating && <p style={{ textAlign: 'left', fontSize: '1.5rem' }}><strong>Average Rating:</strong> {book.avg_rating}</p>}
         {book.film_name && book.film_name !== 'None'&&  <p style={{ textAlign: 'left', fontSize: '1.5rem' }}><strong>Film Name:</strong> {book.film_name}</p>}
         {book.avg_price && <p style={{ textAlign: 'left', fontSize: '1.5rem', fontWeight: 'bold' }}><strong>Price:</strong> ${Math.round(book.avg_price)}</p>}
-        {book.classification && book.classification !== 'None' && <p style={{ textAlign: 'left', fontSize: '1.5rem', fontWeight: 'bold' }}>Classification: {book.classification}</p>}
-        <h2 style={{ textAlign: 'left', fontSize: '2rem' }}><strong>Reviews:</strong></h2>
+        {book.classification && book.classification !== 'None' && (<p style={{ textAlign: 'left', fontSize: '1.5rem' }}><strong>Classification:</strong> {book.classification}</p>)}        <h2 style={{ textAlign: 'left', fontSize: '2rem' }}><strong>Reviews:</strong></h2>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {book.reviews.slice(0, 6).map((review, index) => (
@@ -84,6 +88,7 @@ const BookPage = () => {
       </div>
 
     </div>
+    </Typography>
   );
 };
 
