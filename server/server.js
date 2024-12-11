@@ -12,6 +12,7 @@ const locationRecsControllers = require('./controllers/locationRecs');
 const categoryRecsControllers = require('./controllers/categoryRecs');
 const userBooksControllers = require('./controllers/userBooks');
 const userAuthControllers = require('./controllers/userAuth');
+const citiesController = require('./controllers/cities');
 
 const logger = require('./middleware/logger');
 const authMiddleware = require('./middleware/auth');
@@ -51,6 +52,8 @@ baseRouter.get('/category_recs', categoryRecsControllers.getCategoryRecs); // Ro
 // User books
 baseRouter.post('/users/books', userBooksControllers.addUserBooks); // Route 14
 baseRouter.get('/users/books', userBooksControllers.getUserBooks); // Route 15
+// Cities
+baseRouter.get('/cities/:country', authMiddleware, citiesController.getCitiesInCountry); // For onboarding page
 // User Auth - password
 baseRouter.post('/login/password', // Route 16
     body('email').notEmpty().isEmail(), 
@@ -68,7 +71,6 @@ baseRouter.get( '/login/google/callback',
     }
 );
 baseRouter.get('/auth/retrieve-token', userAuthControllers.retrieveToken);
-
 // User Auth - facebook 
 /*******  TO DO ********/
 
