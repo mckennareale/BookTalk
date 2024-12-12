@@ -36,7 +36,31 @@ const OnboardingPage = () => {
   const [searchBooksInput, setSearchBooksInput] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = () => {}
+  const handleSubmit = async () => {
+    try {
+      const data = {
+        data: {
+          book_ids: selectedBooks,
+          city_id: city,
+          date_of_birth: birthday
+        }
+      }
+      await customFetch(
+        `${process.env.REACT_APP_API_BASE}/users/onboard`,
+        {
+          method: 'POST', 
+          body: JSON.stringify(data),
+        },
+        navigate
+      );
+      navigate("/"); 
+    } catch (err) {
+      console.log(err.message);
+      setError("Error submitting onboarding information");
+      setShowErrorAlert(true);
+    } 
+
+  }
 
   const fetchCitiesList = useCallback(async (searchTerm) => {
     if (!country) return;
@@ -52,7 +76,9 @@ const OnboardingPage = () => {
       );
       setCities(responseJson.cities_list || []);
     } catch (err) {
-      setError(err.message || "Error fetching list of cities");
+      console.log(err.message);
+      setError("Error fetching list of cities");
+      setShowErrorAlert(true);
     } finally {
       setLoadingCities(false);
     }
@@ -79,25 +105,26 @@ const OnboardingPage = () => {
       );
       setBookOptions(responseJson.data || []);
     } catch (err) {
-      setError(err.message || "Error fetching list of books");
+      console.log(err.message);
+      setError("Error fetching list of books");
     } finally {
       setLoadingBooks(false);
     }
   }, [navigate]);
 
+  const handleSearchBooks = () => {
+    if (searchBooksInput.trim() !== "") {
+      setLoadingBooks(true);
+      fetchBooksList(searchBooksInput);
+    }
+  };
+  
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchCitiesList(searchCitiesInput);
     }, 300); 
     return () => clearTimeout(timeoutId); 
   }, [searchCitiesInput, fetchCitiesList]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchBooksList(searchBooksInput);
-    }, 300); 
-    return () => clearTimeout(timeoutId); 
-  }, [searchBooksInput, fetchBooksList]);
 
   return (
     <Container 
@@ -226,8 +253,22 @@ const OnboardingPage = () => {
                 getOptionLabel={(option) => option.title || ""}
                 isOptionEqualToValue={(option, value) => option.isbn === value.isbn} 
                 loading={loadingBooks}
-                onInputChange={(event, newInputValue) => setSearchBooksInput(newInputValue)}
-                onChange={(event, newValue) => {setSelectedBooks(newValue?.isbn || null);}}
+                onInputChange={(event, newInputValue, reason) => {
+                  if (reason === 'input') {
+                    setSearchBooksInput(newInputValue);
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    
+                    handleSearchBooks();
+                  }
+                }}
+                onChange={(event, newValue) => {
+                  const selectedIsbns = newValue.map(book => book.isbn);
+                  setSelectedBooks(selectedIsbns);
+                  setBookOptions([]);
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -250,6 +291,7 @@ const OnboardingPage = () => {
                 )}
               />
             <br></br>
+            {/* {<p>Selected book IDs: {selectedBooks.join(', ')}</p>} */}
 
             <Button variant="contained" size="large" onClick={handleSubmit}>enter your library</Button>
             
