@@ -50,8 +50,9 @@ baseRouter.get('/period_books_rec', bookRecsControllers.getPeriodBookRecs); // R
 baseRouter.get('/set_in_location_recs', locationRecsControllers.getLocationRecs); // Route 9
 baseRouter.get('/category_recs', categoryRecsControllers.getCategoryRecs); // Route 12, 13
 // User books
-baseRouter.post('/users/books', userBooksControllers.addUserBooks); // Route 14
-baseRouter.get('/users/books', userBooksControllers.getUserBooks); // Route 15
+baseRouter.post('/users/books', authMiddleware, userBooksControllers.addUserBooks); // Route 14
+baseRouter.get('/users/books', authMiddleware, userBooksControllers.getUserBooks); // Route 15
+baseRouter.post('/users/onboard', authMiddleware, userBooksControllers.addUserOnboardInfo); // Route 17 - ADD TO DOC
 // Cities
 baseRouter.get('/cities/:country', authMiddleware, citiesController.getCitiesInCountry); // For onboarding page
 // User Auth - password
