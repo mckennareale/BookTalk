@@ -51,108 +51,154 @@ const BookPage = () => {
         className="book-page-container"
         style={{
           display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "center",
+          flexDirection: "column", // Stack vertically
+          alignItems: "flex-start", // Align content to the left
           padding: "20px",
         }}
       >
-        {/* Book image */}
+        {/* Top Section: Image and Book Details */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#f0f0f0", // Solid color background
-            width: "350px", // Fixed width of the background
-            height: "400px", // Fixed height of the background
-            marginRight: "60px",
-            marginLeft: "60px",
-            borderRadius: "10px",
-            overflow: "hidden", // Ensures the image doesn’t overflow
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Optional shadow
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            width: "100%",
+            marginBottom: "40px", // Space between details and reviews
           }}
         >
-          <img
-            src={book.image}
-            alt={book.title}
-            style={{
-              width: "100%",
-              height: "auto", // Maintain aspect ratio
-              objectFit: "contain", // Scale image to fit within the box
-            }}
-          />
-        </div>
-
-        {/* Book details */}
-        <div style={{ maxWidth: "800px", width: "100%", textAlign: "left" }}>
-          <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>{book.title}</h1>
-          <p style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>{book.description}</p>
-          <p style={{ fontSize: "1.2rem" }}><strong>Authors:</strong> {book.authors.join(", ")}</p>
-          <p style={{ fontSize: "1.2rem" }}><strong>Publisher:</strong> {book.publisher}</p>
-          <p style={{ fontSize: "1.2rem" }}><strong>Published Date:</strong> {book.published_date}</p>
-          <p style={{ fontSize: "1.2rem" }}><strong>Category:</strong> {book.category}</p>
-          {book.avg_rating && (
-            <p style={{ fontSize: "1.2rem" }}>
-              <strong>Average Rating:</strong> {book.avg_rating}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Reviews Section */}
-      <h2 style={{ textAlign: "left", fontSize: "1.5rem", marginTop: "20px" }}>Reviews:</h2>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "flex-start",
-          gap: "15px", // Spacing between review cards
-          marginTop: "20px",
-        }}
-      >
-        {book.reviews.slice(0, 6).map((review, index) => (
+          {/* Book image */}
           <div
-            key={index}
-            onClick={() => handleReviewClick(review)} // Open modal on click
+            className="book-image-container"
             style={{
               display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              justifyContent: "flex-start",
-              padding: "10px",
-              borderRadius: "5px",
-              backgroundColor: "#251F47", // Blue background
-              color: "white",
-              maxWidth: "250px", // Fixed width for the text box
-              height: "200px", // Fixed height for the box
-              overflow: "hidden", // Hide overflowing content
-              textAlign: "left",
-              cursor: "pointer", // Indicate that the box is clickable
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#F5EDE3",
+              width: "350px", // Fixed width of the image slot
+              height: "400px", // Fixed height of the image slot
+              marginRight: "60px",
+              borderRadius: "10px",
+              overflow: "hidden", // Ensures no overflow outside the container
             }}
           >
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "10px" }}>
-              {[...Array(5)].map((_, i) => (
-                <span key={i} style={{ color: i < review.review_score ? "gold" : "gray", fontSize: "1rem" }}>
-                  &#9733;
-                </span>
-              ))}
-            </div>
-            <p
+            <img
+              src={book.image}
+              alt={book.title}
               style={{
-                fontSize: "0.9rem",
-                lineHeight: "1.4",
-                maxHeight: "calc(200px - 50px)",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                display: "-webkit-box",
-                WebkitLineClamp: 6,
-                WebkitBoxOrient: "vertical",
+                width: "100%", // Ensures the image takes the full width of the container
+                height: "100%", // Ensures the image takes the full height of the container
+                objectFit: "contain", // Preserves the aspect ratio, fits the image within the slot
+                objectPosition: "center", // Centers the image within the container
               }}
-            >
-              {review.review_text}
-            </p>
+            />
           </div>
-        ))}
+
+          {/* Book details */}
+          <div style={{ maxWidth: "800px", textAlign: "left" }}>
+            <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>{book.title}</h1>
+            <p style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
+              {book.description}
+            </p>
+            <p style={{ fontSize: "1.2rem" }}>
+              <strong>Authors:</strong> {book.authors.join(", ")}
+            </p>
+            <p style={{ fontSize: "1.2rem" }}>
+              <strong>Publisher:</strong> {book.publisher}
+            </p>
+            <p style={{ fontSize: "1.2rem" }}>
+              <strong>Published Date:</strong> {book.published_date}
+            </p>
+            <p style={{ fontSize: "1.2rem" }}>
+              <strong>Category:</strong> {book.category}
+            </p>
+            {book.avg_rating && (
+              <p style={{ fontSize: "1.2rem" }}>
+                <strong>Average Rating:</strong> {book.avg_rating}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div
+          style={{
+            width: "100%", // Full width of container
+            marginLeft: "0px", // Align with the left edge of the image
+            marginRight: "0px",
+          }}
+        >
+          <Typography
+            variant="h2"
+            style={{ fontSize: "1.5rem", marginBottom: "20px" }}
+          >
+            Reviews:
+          </Typography>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap", // Allow wrapping onto multiple rows
+              gap: "15px", // Spacing between review cards
+            }}
+          >
+            {book.reviews.slice(0, 12).map((review, index) => (
+              <div
+                key={index}
+                onClick={() => handleReviewClick(review)} // Open modal on click
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  backgroundColor: "#A44A3F",
+                  color: "white",
+                  flex: "1 1 calc(20% - 15px)", // Dynamic width: roughly 5 cards per row
+                  maxWidth: "250px", // Ensure consistent card size
+                  minWidth: "150px", // Minimum card size for smaller screens
+                  height: "200px", // Fixed height for cards
+                  overflow: "hidden",
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {[...Array(5)].map((_, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        color: i < review.review_score ? "gray" : "#D3D3D3",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      &#9733;
+                    </span>
+                  ))}
+                </div>
+                <p
+                  style={{
+                    fontSize: "0.9rem",
+                    lineHeight: "1.4",
+                    maxHeight: "calc(200px - 50px)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 6,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {review.review_text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Modal */}
@@ -191,7 +237,7 @@ const BookPage = () => {
               style={{
                 marginTop: "20px",
                 padding: "10px 20px",
-                backgroundColor: "#251F47",
+                backgroundColor: "#A44A3F",
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
