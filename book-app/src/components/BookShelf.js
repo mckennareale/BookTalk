@@ -31,22 +31,21 @@ const BookShelf = ({ books = [] }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: "white",
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'center',
-          gap: '12px',
-          height: '300px',
-          maxWidth: '800px',
-          width: '80%',
-          borderBottom: '15px solid #8b4513',
-          padding: '20px',
-        }}
-      >
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        gap: '12px', // Keep the gap between books
+        height: '100%', // Make bookshelf take up more height
+        width: '90%', // Increase the width
+        borderBottom: '15px solid #8b4513',
+        padding: '20px',
+      }}
+    >
         {testBooks.map((book, index) => (
           <motion.div
             key={`book-${book.isbn}-${index}`}
@@ -65,8 +64,8 @@ const BookShelf = ({ books = [] }) => {
             onHoverStart={() => setHoveredIndex(index)}
             onHoverEnd={() => setHoveredIndex(null)}
             style={{
-              height: '200px',
-              width: '30px',
+              height: '250px',
+              width: '40px',
               cursor: 'pointer',
               transformOrigin: 'left center',
               backgroundColor: book.color || '#' + Math.floor(Math.random()*16777215).toString(16),

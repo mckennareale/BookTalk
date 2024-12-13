@@ -7,7 +7,7 @@ async function getCategoryRecs(req, res) {
     // -- test book id = 158595294X
     // -- top category = fiction
     const similar = req.query.similar;
-    const user_id = 'B000K6TBBS';
+    const user_id = req.userId;
     const num_app_user_top_categories = 10;
     const num_overlap_required = 1;
     if (!user_id) {
@@ -30,7 +30,7 @@ async function getCategoryRecs(req, res) {
                     ROW_NUMBER() OVER (ORDER BY COUNT(r.book_id) DESC) AS rank
                 FROM has_reviewed r JOIN amazon_books ab
                                         on r.book_id = ab.id
-                WHERE r.user_id = 'B000K6TBBS'
+                WHERE r.user_id = $1
                 GROUP BY categories
             ),
             user_top_categories AS (
