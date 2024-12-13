@@ -272,7 +272,7 @@ const OnboardingPage = () => {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="start typing to input books"
+                    label="type and hit enter to search for books"
                     fullWidth
                     error={selectedBooks.length < 3 || selectedBooks.length > 8}
                     helperText={
