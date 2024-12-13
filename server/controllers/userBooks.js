@@ -55,7 +55,7 @@ async function getUserBooks(req, res) {
 
     try {
         const bookResult = await db.query(`
-            SELECT DISTINCT ab.title, ab.authors, ab.image, ab.preview_link
+            SELECT DISTINCT ab.id, ab.title, ab.image, ab.preview_link
             FROM amazon_books ab JOIN has_reviewed hr ON hr.book_id = ab.id
             JOIN app_users au ON hr.user_id = au.id
             WHERE au.id = $1;
@@ -66,6 +66,7 @@ async function getUserBooks(req, res) {
         }
         
         const result = bookResult.rows.map(row => ({
+            id: row.id,
             title: row.title,
             authors: row.authors,
             image: row.image,
@@ -75,7 +76,7 @@ async function getUserBooks(req, res) {
         return res.status(200).json(result);
 
     } catch(e) {
-        console.error(`Error getting full info for book id ${bookId}: `, e);
+        console.error(`Error getting full info for user id ${uid}: `, e);
         return res.status(500).json({ message: "Internal server error"});
     }
 }
