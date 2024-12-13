@@ -74,6 +74,7 @@ const theme = createTheme({
     secondary: {
       main: '#F19C79',
     },
+    divider: '#A44A3F'
   },
 
   breakpoints: {

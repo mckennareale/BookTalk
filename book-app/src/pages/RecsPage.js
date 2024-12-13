@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Box, Container, useTheme } from '@mui/material';
+import { Box, Container, Divider, useTheme } from '@mui/material';
 import TopCategoriesSection from '../components/TopCategoriesSection';
 import MapSection from '../components/MapSection';
 import OtherReadersLoveSection from '../components/OtherReadersLoveSection';
 import BrowseMoreSection from '../components/BrowseMoreSection';
+import PeriodLoversSection from '../components/PeriodLoversSection';
 
 const RecsPage = () => {
   const theme = useTheme();
@@ -13,6 +14,7 @@ const RecsPage = () => {
   const sections = [
     { component: MapSection, name: 'MapSection' },
     { component: TopCategoriesSection, name: 'TopCategoriesSection' },
+    { component: PeriodLoversSection, name: 'PeriodLoversSection' },
     { component: OtherReadersLoveSection, name: 'OtherReadersLoveSection' },
     { component: BrowseMoreSection, name: 'BrowseMoreSection' },
   ];
@@ -50,20 +52,20 @@ const RecsPage = () => {
     <Container disableGutters maxWidth="lg">
       <Box
         sx={{
-          backgroundColor: theme.palette.background.paper,
-          minHeight: '100vh',
+          // backgroundColor: theme.palette.background.paper,
+          // minHeight: '100vh',
           // overflow: 'hidden', // Ensure the entire page scrolls
         }}
       >
         {sections.map((section, index) => {
           const SectionComponent = section.component;
           return (
+            <React.Fragment key={section.name}>
             <Box
               id={`section-${index}`} // Add an ID for debugging and reference
               key={section.name}
               ref={(el) => (sectionRefs.current[index] = el)} // Assign ref
               sx={{
-                minHeight: '100vh',
                 position: 'relative', // Keep sections stacked
                 opacity: visibleSection === index ? 1 : 0, // Fade in/out
                 visibility: visibleSection === index ? 'visible' : 'hidden', // Hide inactive sections
@@ -72,6 +74,19 @@ const RecsPage = () => {
             >
               <SectionComponent />
             </Box>
+
+            {index < sections.length - 1 && (
+              <Divider
+                sx={{
+                  width: "80vw", // 80% of the viewport width
+                  backgroundColor: theme.palette.divider,
+                  height: "2px", // Customize 
+                  my: 4, // Vertical margin for spacing between sections
+                  mx: "auto", // Centers the divider horizontally
+                }}
+              />
+            )}
+            </React.Fragment>
           );
         })}
       </Box>
