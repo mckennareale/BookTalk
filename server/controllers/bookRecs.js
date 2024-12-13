@@ -147,62 +147,49 @@ async function getPeriodBookRecs(req, res) {
         const periodResult = await db.query(`
             WITH period_lover_users AS (
                 SELECT
-                    br.user_id,
-                    CASE
-                        WHEN bb.time_period_start >= 2000 AND bb.time_period_end < 2024 THEN 'modern'
-                        WHEN bb.time_period_start >= 1900 AND bb.time_period_end <= 1999 THEN '20th_century'
-                        WHEN bb.time_period_start >= 1500 AND bb.time_period_end <= 1899 THEN '19th_century'
-                        WHEN bb.time_period_start >= 500 AND bb.time_period_end <= 1499 THEN 'medieval'
-                        WHEN bb.time_period_end  < 500 THEN 'ancient'
-                        ELSE 'unknown'
-                    END AS period_type,
-                    COUNT(*) AS num_books_reviewed
-                FROM bx_users bu
-                JOIN bx_reviews br ON bu.id = br.user_id
-                JOIN bx_books bb ON bb.isbn = br.isbn
-                GROUP BY br.user_id, period_type
-                HAVING COUNT(*) > 1
-                ORDER BY num_books_reviewed DESC
-            ),
-            book_reviews_with_periods AS (
-                SELECT
-                    br.user_id,
-                    br.isbn,
-                    br.rating,
-                    bb.title,
-                    bb.author,
-                    bb.time_period_start,
-                    bb.time_period_end,
-                    CASE
-                        WHEN bb.time_period_start >= 2000 AND bb.time_period_end < 2024 THEN 'modern'
-                        WHEN bb.time_period_start >= 1900 AND bb.time_period_end < 1999 THEN '20th_century'
-                        WHEN bb.time_period_start >= 1800 AND bb.time_period_end < 1899 THEN '19th_century'
-                        WHEN bb.time_period_start >= 500 AND bb.time_period_end < 1499 THEN 'medieval'
-                        WHEN bb.time_period_end < 500 THEN 'ancient'
-                        ELSE 'unknown'
-                    END AS period_type
-                FROM bx_reviews br
-                JOIN bx_books bb ON br.isbn = bb.isbn
+                    brp.user_id,
+                    brp.period_type,
+                    COUNT(*) AS num_books_reviewed,
+                    AVG(brp.rating) AS avg_rating
+                FROM book_reviews_with_periods brp
+                GROUP BY brp.user_id, brp.period_type
+                HAVING COUNT(*) > 5
             ),
             selected_period_lover AS (
                 SELECT
-                    plu.user_id,
-                    plu.period_type,
+                    user_id,
+                    period_type,
                     ROW_NUMBER() OVER (
-                        PARTITION BY plu.period_type
-                        ORDER BY RANDOM()
+                        PARTITION BY period_type
+                        ORDER BY RANDOM() DESC
                     ) AS rank
-                FROM period_lover_users plu
+                FROM period_lover_users
+                WHERE period_type != 'unknown'
+                AND num_books_reviewed > 10
+                AND avg_rating > 3
             ),
             period_lover_bookshelves AS (
-                SELECT  spl.period_type,spl.user_id,ARRAY_AGG(bt.isbn) AS isbns FROM selected_period_lover spl
+                SELECT  spl.period_type,spl.user_id,
+                        (
+                            SELECT ARRAY_AGG(isbn)
+                            FROM (
+                                SELECT DISTINCT bt.isbn
+                                FROM book_reviews_with_periods bt
+                                WHERE bt.user_id = spl.user_id
+                                  AND bt.period_type = spl.period_type
+                                  AND bt.rating_weight > 1.0
+                                LIMIT 5
+                            ) limited_isbns
+                        ) AS isbns
+                FROM selected_period_lover spl
                 LEFT JOIN book_reviews_with_periods bt ON spl.user_id = bt.user_id
-                WHERE spl.period_type != 'unknown'
-                AND rank = 1
+                WHERE spl.rank = 1
+                AND spl.period_type != 'unknown'
                 AND bt.period_type = spl.period_type
                 GROUP BY spl.user_id, spl.period_type
             )
-            SELECT * FROM period_lover_bookshelves;
+            SELECT * FROM period_lover_bookshelves
+            ORDER BY period_type ASC;
         `);
         if (periodResult.rows.length === 0) {
             return res.status(404).json({ message: 'No period book recommendations found' });
