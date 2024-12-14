@@ -7,7 +7,8 @@ async function getCategoryRecs(req, res) {
     // -- test book id = 158595294X
     // -- top category = fiction
     const similar = req.query.similar;
-    const user_id = req.userId;
+    const user_id = 'A1FQM00JX1FK4R';
+    // const user_id = req.userId;
     const num_app_user_top_categories = 10;
     const num_overlap_required = 1;
     if (!user_id) {
@@ -68,33 +69,10 @@ async function getCategoryRecs(req, res) {
 // Route 13 - GET api/category_recs: Get top categories from bx users who have never read books in app user’s categories
         else if (similar == 0) {
         const categoryResult = await db.query(`
-            WITH user_categories AS (
-                SELECT DISTINCT LOWER(categories) AS categories
-                FROM has_reviewed r
-                        JOIN amazon_books ab
-                            ON r.book_id = ab.id
-                WHERE r.user_id = user_id
-            ),
-            bx_users_same_cat AS (
-                SELECT bu.id AS bx_user_ids
-                FROM bx_books bb
-                    JOIN bx_reviews br ON bb.isbn = br.isbn
-                    JOIN bx_users bu ON br.user_id = bu.id
-                WHERE category IN (SELECT categories FROM user_categories)
-            ),
-            bx_users_diff_cat AS (
-                SELECT id
-                FROM bx_users
-                WHERE id NOT IN (SELECT bx_user_ids FROM bx_users_same_cat)
-            )
             SELECT category
-            FROM bx_books bb3
-                    JOIN bx_reviews br3 ON bb3.isbn = br3.isbn
-                    JOIN bx_users bu3 ON br3.user_id = bu3.id
-            WHERE bu3.id IN (SELECT id FROM bx_users_diff_cat)
-            AND category IN (SELECT LOWER(categories) FROM amazon_books)
-            GROUP BY category
-            ORDER BY COUNT(br3.rating) DESC, AVG(br3.rating) DESC
+            FROM pre_aggregated_ratings
+            JOIN amazon_books_lower_categories_view abv ON LOWER(category) = abv.lower_categories
+            ORDER BY count_rating DESC, avg_rating DESC
             LIMIT 10;`);
             //[user_id,]
             if (categoryResult.rows.length === 0) {
