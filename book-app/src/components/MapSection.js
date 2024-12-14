@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import {
     ComposableMap,
     Geographies,
@@ -8,20 +8,34 @@ import {
     Annotation
   } from "react-simple-maps";
 import geoJson from "../helpers/countries-50m.json";
+import Tooltip from "@mui/material/Tooltip";
 
+const MapSection = ({ data = [], error, loading, onMarkerClick }) => {
 
-
-const MapSection = () => {
-    const markers = [
-        { markerOffset: 15, name: "La Paz", coordinates: [-68.1193, -16.4897] },
-        { markerOffset: 15, name: "Brasilia", coordinates: [-47.8825, -15.7942] },
-        { markerOffset: 15, name: "Santiago", coordinates: [-70.6693, -33.4489] },
+    // if no locations in data, use default location top 5
+    let markers = [
+        { markerOffset: 20, city: 'New York', country: 'United States',  coordinates: [-73.9249000, 40.6943000], location_id: 1840034016},
+        { markerOffset: 20, city: 'London', country: 'United Kingdom', coordinates: [-0.1275000, 51.5072000], location_id: 1826645935},
+        { markerOffset: 20, city: 'Los Angeles', country: 'United States', coordinates: [-118.4068000, 34.1141000], location_id: 1840020491},
+        { markerOffset: 20, city: 'Paris', country: 'France',  coordinates: [2.3522000, 48.8567000], location_id: 1250015082},
+        { markerOffset: 20, city: 'Chicago', country: 'United States', coordinates: [-87.6866000, 41.8375000], location_id: 1840000494},
       ];
-    //Google by default returns coordinates as [lat, lon], while d3-geo specifies them as [lon, lat].
-
-    const [citySelected, setCitySelected] = useState(null);
+    
+    if (data.length > 0) {
+        markers = data.map((location) => {
+            return {
+                markerOffset: 20,
+                city: location.city,
+                country: location.country,
+                coordinates: [location.longitude, location.latitude],
+                location_id: location.id,
+            }
+        })
+    }
+    
     
     return (
+
         <Box
             flexDirection="column"
             alignItems="flex-start"
@@ -34,69 +48,72 @@ const MapSection = () => {
             overflow: 'auto',
             // backgroundColor: '#ADD8E6', // light blue for dev
             }}
-        >
-        
-        <Typography 
+        >   
+            <Typography 
             variant="h5" 
             sx={{ 
             color: 'primary.main',
             }}>
             we think you'll like books set in these locations...
-        </Typography>
-        
-        <ComposableMap 
-            projection="geoEqualEarth"
-            height="500">
-        <Geographies
-            geography={geoJson}
-            fill="#D6D6DA"
-            stroke="#FFFFFF"
-            strokeWidth={0.5}
-        >
-            {({ geographies }) =>
-            geographies.map((geo) => (
-                <Geography 
-                    key={geo.rsmKey} 
-                    geography={geo}
-                    style={{
-                        default: {
-                        fill: "#e3e1e1",
-                        },
-                        hover: {
-                        fill: "#F19C79",
-                        },
-                }} />
-            ))
-            }
-        </Geographies>
-        {markers.map(({ name, coordinates, markerOffset }) => (
-            <Marker key={name} coordinates={coordinates}>
-            <g
-                fill="none"
-                stroke="#A44A3F"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                transform="translate(-12, -24)"
-            >
-                <circle cx="12" cy="10" r="3" />
-                <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z" />
-            </g>
-            <text
-                textAnchor="middle"
-                y={markerOffset}
-                style={{ 
-                    fontFamily: "'Outfit Variable', sans-serif", 
-                    fontSize: "12",
-                    fontWeight: "300",
-                    fill: "#000000" }}
-            >
-                {name}
-            </text>
-            </Marker>
-        ))}
-        </ComposableMap>
-        
+            </Typography>
+            {loading && <CircularProgress />}
+            {error && <Typography color="error">{error}</Typography>}
+            
+            
+            <ComposableMap 
+                projection="geoEqualEarth"
+                height={500}>
+                <Geographies
+                    geography={geoJson}
+                    fill="#D6D6DA"
+                    stroke="#FFFFFF"
+                    strokeWidth={0.5}
+                >
+                    {({ geographies }) =>
+                    geographies.map((geo) => (
+                        <Geography 
+                            key={geo.rsmKey} 
+                            geography={geo}
+                            style={{
+                                default: {
+                                fill: "#e3e1e1",
+                                },
+                                // hover: {
+                                // fill: "#F19C79",
+                                // },
+                        }} />
+                    ))
+                    }
+                </Geographies>
+                {markers.map(({ city, country, coordinates, markerOffset, location_id }) => (
+                    <Tooltip
+                        key={city}
+                        title={`${city}, ${country}`} 
+                        onClick={() => onMarkerClick(
+                            location_id, city, country
+                        )}
+                        arrow 
+                    >
+                    <Marker 
+                        key={city} 
+                        coordinates={coordinates}
+                        >
+                    <g
+                        fill="none"
+                        stroke="#A44A3F"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        transform="translate(-12, -24)"
+                    >
+                        <circle cx="12" cy="10" r="3" />
+                        <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z" />
+                    </g>
+                    </Marker>
+                    </Tooltip>
+                ))}
+            </ComposableMap>
+            
         </Box>
         
     )

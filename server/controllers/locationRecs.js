@@ -24,10 +24,10 @@ async function getLocationRecs(req, res) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        console.log("runs first query")
+        // console.log("runs first query")
     
         const { longitude, latitude, date_of_birth: dob } = userDataQuery.rows[0];
-        console.log(`Longitude: ${longitude}, Latitude: ${latitude}, Date of Birth: ${dob}`);
+        // console.log(`Longitude: ${longitude}, Latitude: ${latitude}, Date of Birth: ${dob}`);
         
         // Ensure longitude and latitude are numbers
         const long = parseFloat(longitude);
@@ -38,7 +38,7 @@ async function getLocationRecs(req, res) {
             return res.status(400).json({ message: 'Invalid coordinates' });
         }
         
-        console.log(`Longitude: ${long}, Latitude: ${lat}`);
+        // console.log(`Longitude: ${long}, Latitude: ${lat}`);
 
         // get userAge 
         const birthDate = new Date(dob);
@@ -48,8 +48,8 @@ async function getLocationRecs(req, res) {
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
-        console.log(`User Age: ${age}`);
-        console.log("gets to calculating age");
+        // console.log(`User Age: ${age}`);
+        // console.log("gets to calculating age");
 
         const locationRecsResult = await db.query(`
             WITH similar_users AS (
@@ -115,6 +115,7 @@ async function getLocationRecs(req, res) {
         
         // Map the results correctly
         const result = locationRecsResult.rows.map(row => ({
+            id: row.setting_id,
             city: row.city,
             country: row.country_name,
             latitude: row.latitude,

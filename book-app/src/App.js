@@ -89,6 +89,22 @@ const theme = createTheme({
       xl: 1680,
     },
   },
+
+  components: {
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          fontSize: "20px", 
+          fontWeight: "300px", 
+          color: "#FFFFFF",
+          backgroundColor: "#333333",
+        },
+        arrow: {
+          color: "#333333", 
+        },
+      },
+    },
+  },
 });
 
 function App() {
