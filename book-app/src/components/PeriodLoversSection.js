@@ -31,7 +31,7 @@ const PeriodLoversSection = () => {
         pt: 5,
         // height: '75vh',
         overflow: 'auto',
-        backgroundColor: '#ffffff',
+        // backgroundColor: '#ffffff',
         }}
     >
     
@@ -62,13 +62,14 @@ const PeriodLoversSection = () => {
       
       {categories.map((category, index) => 
         <Avatar 
+          key={category}
           alt={category} 
           src={images[index]}
-          sx={{ width: 160, height: 160 }} />
+          sx={{ width: 200, height: 200 }} />
       )}
     </Box>
 
-    <Box sx={{ height: '10vh' }}></Box>
+    <Box sx={{ height: '15vh' }}></Box>
 
     </Box>
   )

@@ -5,8 +5,16 @@ import { customFetch } from "../utils/customFetch";
 import { useNavigate } from "react-router-dom";
 
 
-const TopCategoriesSection = () => {
-  // Define your books array
+const TopCategoriesSection = ({ data = [], error, loading, onCategoryClick }) => {
+  
+  // TO DO # 1 - change bookshelf component to take in categories instead of books
+  // in this format
+  // {id: x, category: x, color: x}
+  // data will contain the categories - will need reformatting into the above format
+
+  // TO DO # 2 - handle category click (call onCategoryClick)
+
+  
   const categories = [
     { isbn: '1', image: 'book1.jpg', color: '#a44a3f' },
     { isbn: '2', image: 'book2.jpg', color: '#f19c79' },
@@ -16,30 +24,8 @@ const TopCategoriesSection = () => {
     { isbn: '6', image: 'book6.jpg', color: '#f19c79' },
     { isbn: '7', image: 'book7.jpg', color: '#a44a3f' }
   ];
-  const [userCategories, setUserCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  useEffect(() => {
-    const fetchTopCategories = async () => {
-        try {
-            const responseJson = await customFetch(
-                `${process.env.REACT_APP_API_BASE}/category_recs`,
-                { method: "GET" },
-                navigate
-            );
-
-            console.log("Fetched categories:", responseJson); // Debugging log
-            setUserCategories(responseJson); // Save the books to state
-        } catch (err) {
-            console.error("Error fetching user categories:", err.message);
-            setError("Failed to load user categories.");
-        } finally {
-            setLoading(false);
-        }
-    };
-    fetchTopCategories();
-}, [navigate]); 
+  
+  
 
   return (
     <Box
@@ -50,7 +36,7 @@ const TopCategoriesSection = () => {
         pr: 2,
         pt: 5,
         pb: 5, // Add padding to the bottom
-        backgroundColor: '#ffffff',
+        // backgroundColor: '#ffffff',
       }}
     >
       <Typography 
@@ -62,7 +48,9 @@ const TopCategoriesSection = () => {
       >
         New top categories you may like
       </Typography>
-      <Box sx={{ height: '100%', overflow: 'hidden' }}>
+      <Box sx={{ 
+        // height: '100%', 
+        overflow: 'hidden' }}>
         <BookShelf books={categories} />
       </Box>
     </Box>

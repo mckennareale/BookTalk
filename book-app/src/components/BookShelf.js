@@ -27,11 +27,11 @@ const BookShelf = ({ books = [] }) => {
   return (
     <Box 
       sx={{ 
-        minHeight: '100vh',
+        minHeight: '80vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: "white",
+        // backgroundColor: "white",
       }}
     >
     <Box
@@ -43,7 +43,7 @@ const BookShelf = ({ books = [] }) => {
         height: '100%', // Make bookshelf take up more height
         width: '90%', // Increase the width
         borderBottom: '15px solid #8b4513',
-        padding: '20px',
+        padding: '5px',
       }}
     >
         {testBooks.map((book, index) => (
