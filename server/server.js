@@ -13,6 +13,7 @@ const categoryRecsControllers = require('./controllers/categoryRecs');
 const userBooksControllers = require('./controllers/userBooks');
 const userAuthControllers = require('./controllers/userAuth');
 const citiesController = require('./controllers/cities');
+const tempTablesLoadController = require('./controllers/tempTablesLoad'); // Adjust the path as necessary
 
 const logger = require('./middleware/logger');
 const authMiddleware = require('./middleware/auth');
@@ -71,9 +72,13 @@ baseRouter.get( '/login/google/callback',
         userAuthControllers.googleLogin(req, res);
     }
 );
+// temp table route
+baseRouter.get('/setup_temp_tables', authMiddleware, tempTablesLoadController.setupTempTables); // New temp table setup route
+
 baseRouter.get('/auth/retrieve-token', userAuthControllers.retrieveToken);
 // User Auth - facebook 
 /*******  TO DO ********/
+
 
 
 // For all undefined routes

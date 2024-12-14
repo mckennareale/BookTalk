@@ -16,6 +16,8 @@ import NavigationBar from './components/NavigationBar';
 import './css/styles.css'
 import ProtectedRoute from './ProtectedRoute';
 import PartialBookCard from './components/PartialBookCard';
+import LoadingPage from './pages/LoadingPage';
+
 
 const theme = createTheme({
   typography: {
@@ -125,6 +127,11 @@ function App() {
             <ProtectedRoute>
               <RecsPage />
               </ProtectedRoute>
+            } />
+            <Route path="/loading" element={
+            <ProtectedRoute>
+              <LoadingPage />
+            </ProtectedRoute>
             } />
 
           <Route path="/test" element={<PartialBookCard />} />
