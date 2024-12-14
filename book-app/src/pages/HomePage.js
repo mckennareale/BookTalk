@@ -12,7 +12,9 @@ const HomePage = () => {
 
     useEffect(() => {
       const fetchUserBooks = async () => {
+
           try {
+
               const responseJson = await customFetch(
                   `${process.env.REACT_APP_API_BASE}/users/books`,
                   { method: "GET" },

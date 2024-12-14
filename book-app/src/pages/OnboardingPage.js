@@ -53,7 +53,7 @@ const OnboardingPage = () => {
         },
         navigate
       );
-      navigate("/"); 
+      navigate("/loading"); 
     } catch (err) {
       console.log(err.message);
       setError(err.message || "Error submitting onboarding information");
