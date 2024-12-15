@@ -42,16 +42,14 @@ const RecsPage = () => {
     setSelectedCity(city);
     setSelectedCountry(country);
     setDrawerTrigger("location");
-    // fetch books
-    // TO DO - write an endpoint to allow fetch for top books set in location_id
-    // Then integrate it here - store the results in drawerBooks
     const fetchCityBooks = async () => {
       const responseJson = await customFetch(
-          `${process.env.REACT_APP_API_BASE}/set_in_location_recs?location_id=${location_id}`,
-          { method: "GET" },
-          navigate
+        `${process.env.REACT_APP_API_BASE}/set_in_location_books_recs?location_id=${location_id}`,
+        { method: "GET" },
+        navigate
       );
-      setDrawerBooks(responseJson);
+      console.log("City books:", responseJson);
+      setDrawerBooks(responseJson.data);
     }
     fetchCityBooks();
     setDrawerOpen(true); 
@@ -59,17 +57,18 @@ const RecsPage = () => {
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
+    console.log("Category:", category);
     setDrawerTrigger("category");
-    // fetch books
-    // TO DO - similar to fetch above but for books with category
-    // async getCategoryBooks(category) {
-    //   const responseJson = await customFetch(
-    //       `${process.env.REACT_APP_API_BASE}/category_books_rec?category=${category}`,
-    //       { method: "GET" },
-    //       navigate
-    //   );
-    //   setDrawerBooks(responseJson);
-    // }
+    const fetchCategoryBooks = async () => {
+      const responseJson = await customFetch(
+        `${process.env.REACT_APP_API_BASE}/category_books_recs?category=${category}`,
+        { method: "GET" },
+        navigate
+      );
+      console.log("Category books:", responseJson);
+      setDrawerBooks(responseJson.data);
+    }
+    fetchCategoryBooks();
     setDrawerOpen(true);
   }
 
@@ -276,8 +275,7 @@ const RecsPage = () => {
         }}
       >
         {/* {selectedLocation && <p>{selectedLocation}</p>} */}
-        {selectedCategory && <p>{selectedCategory}</p>}
-        {selectedPeriod && <p>{selectedPeriod}</p>}        
+        {/* {selectedPeriod && <p>{selectedPeriod}</p>}         */} 
 
         <RecsDrawer 
           open={drawerOpen} 
