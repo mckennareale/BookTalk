@@ -73,7 +73,7 @@ baseRouter.get( '/login/google/callback',
     }
 );
 // temp table route
-baseRouter.get('/setup_temp_tables', authMiddleware, tempTablesLoadController.setupTempTables); // New temp table setup route
+baseRouter.get('/setup_temp_tables', authMiddleware, tempTablesLoadController.setupMaterializedView); // New temp table setup route
 
 baseRouter.get('/auth/retrieve-token', userAuthControllers.retrieveToken);
 // User Auth - facebook 

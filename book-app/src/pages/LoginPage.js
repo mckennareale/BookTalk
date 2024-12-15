@@ -111,6 +111,7 @@ export default function LoginPage() {
       if (responseData.newUser) {
         navigate("/onboarding");
       } else {
+        // navigate("/"); 
         navigate("/loading"); 
       }
     } catch (err) {
