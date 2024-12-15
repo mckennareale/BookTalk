@@ -6,7 +6,7 @@ async function getBookRecs(req, res) {
     const criteria = req.query.criteria;
     const book_id = req.query.book_id;
 
-    const user_id = 'A1FQM00JX1FK4R';
+    const user_id = req.userId;
     const num_recs_to_return = 10;
 
     if (!user_id) {
