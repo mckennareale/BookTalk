@@ -64,24 +64,6 @@ const RecsPage = () => {
     setDrawerOpen(true);
   }
 
-  const handleBrowseMoreToggle = async (criteria) => {
-    setBrowseMoreCriteria(criteria);
-    try {
-      (true);
-      const responseJson = await customFetch(
-          `${process.env.REACT_APP_API_BASE}/book_recs?criteria=similar_age`,
-          { method: "GET" },
-          navigate
-      );
-      console.log("OtherReader results:", responseJson); 
-      setOtherReaderBooks(responseJson); 
-    } catch (err) {
-      console.error("Error fetching OtherReader recs:", err.message);
-      setError("Failed to load OtherReader recs.");
-    } finally {
-      setOtherReadersLoading(false);
-    }
-  }
   
   const closeDrawer = () => setDrawerOpen(false);
 
@@ -204,7 +186,7 @@ const RecsPage = () => {
           setOtherReadersLoading(false);
         }
       },
-      data: OtherReaderBooks,
+      data: otherReaderBooks,
       loading: otherReadersLoading,
       fetched: false,
       error: error,
