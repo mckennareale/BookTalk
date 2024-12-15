@@ -212,7 +212,8 @@ async function getSetInLocationBooksRecs(req, res) {
             FROM amazon_books ab JOIN books_rating br ON id = book_id
             WHERE setting_id = ${location_id}
             GROUP BY id, title, image
-            ORDER BY avg_rating DESC;
+            ORDER BY avg_rating DESC
+            LIMIT 25;
         `);
         return res.status(200).json({ data: result.rows });
     } catch (error) {
@@ -232,7 +233,8 @@ async function getCategoryBooksRecs(req, res) {
             FROM amazon_books ab JOIN books_rating br ON id = book_id
             WHERE categories = '${category}'
             GROUP BY id, title, image
-            ORDER BY avg_rating DESC;
+            ORDER BY avg_rating DESC
+            LIMIT 25;
         `);
         return res.status(200).json({ data: result.rows });
     } catch (error) {
