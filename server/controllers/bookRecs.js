@@ -57,7 +57,7 @@ async function getBookRecs(req, res) {
                 ORDER BY review_count DESC
                 LIMIT 1
                 )
-                SELECT ab.id, ab.title,ab.image,ab.classification, ab.categories, ar.review_score as avg_rating FROM amazon_books ab
+                SELECT DISTINCT ab.id, ab.title,ab.image,ab.classification, ab.categories, ar.review_score as avg_rating FROM amazon_books ab
                 LEFT JOIN books_rating ar on ab.id = ar.book_id
                 WHERE ab.categories IN (SELECT top_categories from top_app_user_categories)
                 AND ar.review_score is not null

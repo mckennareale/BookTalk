@@ -29,17 +29,26 @@ const SurpriseMeSection = ({data, loading, onSurpriseMeClick}) => {
           pl: 2,
           pr: 2,
           pt: 5,
-          pb: 5,
+          pb: 3,
         }}
       >
         <Typography 
           variant="h2" 
           sx={{ 
             color: 'primary.main',
-            marginBottom: 4,
+            marginBottom: 1,
           }}
         >
-          Surprise Me
+          Surprise!
+        </Typography>
+        <Typography 
+          variant="subtitle1" 
+          sx={{ 
+            color: 'text.secondary',
+            marginBottom: 3,
+          }}
+        >
+          Check out categories new to you
         </Typography>
   
         <Box 
@@ -58,13 +67,13 @@ const SurpriseMeSection = ({data, loading, onSurpriseMeClick}) => {
             <CircularProgress />
           ) : (
             data.map((category, index) => {
-              const height = getHeightFromLength(category);
+              const height = getHeightFromLength(category) + 40;
               return (
                 <Box
                   key={`${category}-${index}`}
                   onClick={() => onSurpriseMeClick && onSurpriseMeClick(category)}
                   sx={{
-                    width: '40px',
+                    width: '45px',
                     height: `${height}px`,
                     backgroundColor: colors[index % colors.length],
                     cursor: 'pointer',
@@ -92,7 +101,7 @@ const SurpriseMeSection = ({data, loading, onSurpriseMeClick}) => {
                       textOverflow: 'ellipsis',
                       maxHeight: `${height - 20}px`,
                       padding: '10px 0',
-                      fontSize: '0.9rem',
+                      fontSize: '1.1rem',
                       letterSpacing: '1px',
                     }
                   }}

@@ -136,7 +136,7 @@ let queryParams = "";
           sx={{ 
             color: 'primary.main',
           }}>
-          browse more...
+          based on your favorites, find more...
         </Typography>
 
         <Button

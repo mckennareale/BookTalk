@@ -15,11 +15,6 @@ const TopCategoriesSection = ({ data = [], error, loading, onCategoryClick }) =>
     return Math.min(baseHeight + (text.length * heightPerChar), 200); // max height of 200px
   };
 
-  // if data from server is empty, use default data
-  if (data.length === 0) {
-  data = ['fiction', 'history', 'juvenile fiction', 'computers', 'biography & autobiography'];
-  }
-
   return (
     <Box
       flexDirection="column"
@@ -28,19 +23,27 @@ const TopCategoriesSection = ({ data = [], error, loading, onCategoryClick }) =>
         pl: 2,
         pr: 2,
         pt: 5,
-        pb: 5,
+        pb: 3,
       }}
     >
       <Typography 
         variant="h2" 
         sx={{ 
           color: 'primary.main',
-          marginBottom: 4,
+          marginBottom: 1,
         }}
       >
-        Your Top Categories
+        For you!
       </Typography>
-
+      <Typography 
+          variant="subtitle1" 
+          sx={{ 
+            color: 'text.secondary',
+            marginBottom: 3,
+          }}
+        >
+          Check out top categories of similar users
+        </Typography>
       <Box 
         sx={{
           position: 'relative',
@@ -57,13 +60,13 @@ const TopCategoriesSection = ({ data = [], error, loading, onCategoryClick }) =>
           <CircularProgress />
         ) : (
           data.map((category, index) => {
-            const height = getHeightFromLength(category);
+            const height = getHeightFromLength(category) + 40;
             return (
               <Box
                 key={`${category}-${index}`}
                 onClick={() => onCategoryClick && onCategoryClick(category)}
                 sx={{
-                  width: '40px',
+                  width: '45px',
                   height: `${height}px`,
                   backgroundColor: colors[index % colors.length],
                   cursor: 'pointer',
@@ -91,7 +94,7 @@ const TopCategoriesSection = ({ data = [], error, loading, onCategoryClick }) =>
                     textOverflow: 'ellipsis',
                     maxHeight: `${height - 20}px`,
                     padding: '10px 0',
-                    fontSize: '0.9rem',
+                    fontSize: '1.1rem',
                     letterSpacing: '1px',
                   }
                 }}
