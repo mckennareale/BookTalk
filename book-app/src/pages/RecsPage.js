@@ -31,9 +31,8 @@ const RecsPage = () => {
   const [topCategories, setTopcategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const [periodBooksLoading, setPeriodBooksLoading] = useState(false);
-  const [periodBooks, setPeriodBooks] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [periodLovers, setPeriodLovers] = useState([]);
+  const [periodLoversLoading, setPeriodLoversLoading] = useState(false);
 
   const [surpriseMeLoading, setSurpriseMeLoading] = useState(false);
   const [surpriseMeBooks, setSurpriseMeBooks] = useState([]);
@@ -74,24 +73,6 @@ const RecsPage = () => {
     setDrawerOpen(true);
   }
 
-  const handleTimePeriodClick = (timePeriod) => {
-    setSelectedPeriod(timePeriod);
-    setDrawerTrigger("period");
-    // fetch books
-    // TO DO - similar to fetch above but these are BX_books so need to fetch from those
-    // const fetchPeriodBooks = async () => {
-    //   const responseJson = await customFetch(
-    //     `${process.env.REACT_APP_API_BASE}/category_books_recs?category=${category}`,
-    //     { method: "GET" },
-    //     navigate
-    //   );
-    //   console.log("Category books:", responseJson);
-    //   setDrawerBooks(responseJson.data);
-    // }
-    // fetchCategoryBooks();
-    setDrawerOpen(true);
-  }
-
   const handleSurpriseMeClick = (category) => {
     setSelectedCategory(category);
     console.log("Surprise me category:", category);
@@ -117,14 +98,6 @@ const RecsPage = () => {
     setDrawerOpen(open);
   };
 
-  const userBooks = [
-    {id:'0004112563',title:'The Complete Farmhouse Kitchen Cookbook', image:'http://books.google.com/books/content?id=qZ7iAAAAC…J&printsec=frontcover&img=1&zoom=1&source=gbs_api',preview_link:'http://books.google.com/books?id=qZ7iAAAACAAJ&dq=T…armhouse+Kitchen+Cookbook&hl=&cd=1&source=gbs_api'},
-    {id:'0028616693',title:"Frommer's Scotland (Frommer's Complete Guides)",image:null,preview_link:null},
-    {id:'0198184743',title:'To Ireland, I (Clarendon Lectures in English Literature)',image:'http://books.google.com/books/content?id=VpCg-WGLN…=frontcover&img=1&zoom=1&edge=curl&source=gbs_api',preview_link:'http://books.google.nl/books?id=VpCg-WGLNjcC&print…es+in+English+Literature)&hl=&cd=1&source=gbs_api'},
-    {id:'0271028645',title:"Building Little Italy: Philadelphia's Italians Before Mass Migration",image:'http://books.google.com/books/content?id=0JZJgEabb…=frontcover&img=1&zoom=1&edge=curl&source=gbs_api',preview_link:'http://books.google.com/books?id=0JZJgEabbfMC&prin…ans+Before+Mass+Migration&hl=&cd=1&source=gbs_api'},
-    {id:'0345362535',title:'No Idle Hands: The Social History of American Knitting',image:'http://books.google.com/books/content?id=8dFMltjhi…=frontcover&img=1&zoom=1&edge=curl&source=gbs_api',preview_link:'http://books.google.com/books?id=8dFMltjhi0YC&prin…tory+of+American+Knitting&hl=&cd=1&source=gbs_api'},
-    {id:'0756609135',title:'Sweden (Eyewitness Travel Guides)',image:'http://books.google.com/books/content?id=CebEDwAAQ…=frontcover&img=1&zoom=1&edge=curl&source=gbs_api',preview_link:'http://books.google.com/books?id=CebEDwAAQBAJ&prin…Eyewitness+Travel+Guides)&hl=&cd=1&source=gbs_api'},
-  ];
 
   const sections = [
     {
@@ -189,29 +162,29 @@ const RecsPage = () => {
       name: "PeriodLoversSection",
       fetchData: async () => {
         try {
-          setPeriodBooksLoading(true);
           const responseJson = await customFetch(
               `${process.env.REACT_APP_API_BASE}/period_books_rec`,
               { method: "GET" },
               navigate
           );
-          console.log("Period results:", responseJson); 
-          setPeriodBooks(responseJson); 
+          console.log("Period books:", responseJson); 
+          setPeriodLovers(responseJson); 
+          return responseJson;
         } catch (err) {
           console.error("Error fetching period recs:", err.message);
           setError("Failed to load period recs.");
         } finally {
-          setPeriodBooksLoading(false);
+          setPeriodLoversLoading(false);
         }
       },
-      data: periodBooks,
-      loading: periodBooksLoading,
+      data: periodLovers,
+      loading: periodLoversLoading,
       fetched: false,
       error: error,
       onMarkerClick: null,
       onCategoryClick: null,
-      onTimePeriodClick: null,
-      onSurpriseMeClick: handleSurpriseMeClick,
+      onPeriodClick: null,
+      onSurpriseMeClick: null,
     },
     {
       component: SurpriseMeSection,
@@ -319,7 +292,6 @@ const RecsPage = () => {
           country={selectedCountry}
           location_id={selectedLocation}
           category={selectedCategory}
-          timePeriod={selectedPeriod}
         />
 
         {sections.map((section, index) => {
@@ -343,7 +315,7 @@ const RecsPage = () => {
               loading={sections[index].loading}
               onMarkerClick={sections[index].onMarkerClick}
               onCategoryClick={sections[index].onCategoryClick}
-              onTimePeriodClick={sections[index].onTimePeriodClick}
+              onPeriodClick={sections[index].onPeriodClick}
               onSurpriseMeClick={sections[index].onSurpriseMeClick}
               />
             </Box>

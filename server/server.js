@@ -52,6 +52,7 @@ baseRouter.get('/set_in_location_recs', authMiddleware, locationRecsControllers.
 baseRouter.get('/category_recs', authMiddleware, categoryRecsControllers.getCategoryRecs); // Route 12, 13
 baseRouter.get('/category_books_recs', authMiddleware, bookRecsControllers.getCategoryBooksRecs); // new route for recs
 baseRouter.get('/set_in_location_books_recs', authMiddleware, bookRecsControllers.getSetInLocationBooksRecs); // new route for recs
+baseRouter.get('/get_period_books', authMiddleware, bookRecsControllers.getPeriodBooksRecs); // new route for recs
 // User books
 baseRouter.post('/users/books', authMiddleware, userBooksControllers.addUserBooks); // Route 14
 baseRouter.get('/users/books', authMiddleware, userBooksControllers.getUserBooks); // Route 15

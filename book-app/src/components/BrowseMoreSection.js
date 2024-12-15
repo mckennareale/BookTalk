@@ -72,7 +72,8 @@ let queryParams = "";
     // Only fetch if we have query parameters
     if (queryParams.length > 0) {
       setIsLoading(true);
-      const url = `${process.env.REACT_APP_API_BASE}/book_recs?${queryParams}`;
+      const encodedQueryParams = encodeURIComponent(queryParams);
+      const url = `${process.env.REACT_APP_API_BASE}/book_recs?${encodedQueryParams}`;
 
       fetch(url, {
         method: 'GET',
