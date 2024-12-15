@@ -45,6 +45,15 @@ const RecsPage = () => {
     // fetch books
     // TO DO - write an endpoint to allow fetch for top books set in location_id
     // Then integrate it here - store the results in drawerBooks
+    const fetchCityBooks = async () => {
+      const responseJson = await customFetch(
+          `${process.env.REACT_APP_API_BASE}/set_in_location_recs?location_id=${location_id}`,
+          { method: "GET" },
+          navigate
+      );
+      setDrawerBooks(responseJson);
+    }
+    fetchCityBooks();
     setDrawerOpen(true); 
   };
 
@@ -53,6 +62,14 @@ const RecsPage = () => {
     setDrawerTrigger("category");
     // fetch books
     // TO DO - similar to fetch above but for books with category
+    // async getCategoryBooks(category) {
+    //   const responseJson = await customFetch(
+    //       `${process.env.REACT_APP_API_BASE}/category_books_rec?category=${category}`,
+    //       { method: "GET" },
+    //       navigate
+    //   );
+    //   setDrawerBooks(responseJson);
+    // }
     setDrawerOpen(true);
   }
 
@@ -265,7 +282,7 @@ const RecsPage = () => {
         <RecsDrawer 
           open={drawerOpen} 
           toggleDrawer={toggleDrawer}
-          books={userBooks} //change to drawerbooks
+          books={drawerBooks} //change to drawerbooks
           drawerTrigger={drawerTrigger}
           city={selectedCity}
           country={selectedCountry}
