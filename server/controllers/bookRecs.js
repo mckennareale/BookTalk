@@ -201,7 +201,49 @@ async function getPeriodBookRecs(req, res) {
     }
 }
 
+// Route - GET /set_in_location_recs?location_id=X
+async function getSetInLocationBooksRecs(req, res) {
+    const location_id = req.query.location_id;
+    console.log('Location ID:', location_id);
+
+    try {
+        const result = await db.query(`
+            SELECT id, title, image, ROUND(AVG(br.review_score), 2) as avg_rating
+            FROM amazon_books ab JOIN books_rating br ON id = book_id
+            WHERE setting_id = ${location_id}
+            GROUP BY id, title, image
+            ORDER BY avg_rating DESC;
+        `);
+        return res.status(200).json({ data: result.rows });
+    } catch (error) {
+        console.error('Error fetching set in location recommendations:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+// Route - GET /category_books_recs?category_id=X
+async function getCategoryBooksRecs(req, res) {
+    const category = req.query.category;
+    console.log('Category ID:', category_id);
+
+    try {
+        const result = await db.query(`
+            SELECT id, title, image, ROUND(AVG(br.review_score), 2) as avg_rating
+            FROM amazon_books ab JOIN books_rating br ON id = book_id
+            WHERE categories = '${category}'
+            GROUP BY id, title, image
+            ORDER BY avg_rating DESC;
+        `);
+        return res.status(200).json({ data: result.rows });
+    } catch (error) {
+        console.error('Error fetching category books recommendations:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     getBookRecs,
     getPeriodBookRecs,
+    getSetInLocationBooksRecs,
+    getCategoryBooksRecs
 }
