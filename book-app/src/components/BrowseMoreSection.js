@@ -18,6 +18,7 @@ import { useTheme } from '@mui/material';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { customFetch } from "../utils/customFetch";
 
 const BrowseMoreSection = ({ data, loading, error }) => {
   const navigate = useNavigate();
@@ -49,67 +50,43 @@ let queryParams = "";
   };
   
   const handleQueryParams = () => {
-    let params = "criteria=";
+    let params = "";
     switch(selectedFilter?.toLowerCase()) {
       case 'author':
-        params += 'top_authors';
+        params = "criteria=top_authors";
         break;
       case 'classification':
-        params += 'classification';
+        params = "criteria=classification";
         break;
       case 'category':
-        params += 'top_categories';
+        params = "criteria=top_categories";
         break;
       default:
+        params = "";
         break;
     }
     queryParams = params;
   };
 
-  const fetchBooks = () => {
-    // Build query parameters based on selected filter
-
+  const fetchBooks = async () => {
     // Only fetch if we have query parameters
     if (queryParams.length > 0) {
       setIsLoading(true);
-      const encodedQueryParams = encodeURIComponent(queryParams);
-      const url = `${process.env.REACT_APP_API_BASE}/book_recs?${encodedQueryParams}`;
+      const url = `${process.env.REACT_APP_API_BASE}/book_recs?${queryParams}`;
+      console.log("URL:", url);
 
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      })
-      .then(async (res) => {
-        console.log("Response Object:", res);
-        console.log("Response Status:", res.status);
-        console.log("Response Status Text:", res.statusText);
-        
-        if (!res.ok) {
-          const errorMessage = `Network response was not ok: ${res.statusText}`;
-          console.error(errorMessage);
-          throw new Error(errorMessage);
-        }
-        
-        const data = await res.json();
-        console.log("Parsed Response Data:", data);
-        
-        return data;
-      })
-      .then((data) => {
+      try {
+        const data = await customFetch(url, { method: "GET" }, navigate);
         const newBooks = data.data;
         console.log("Processed Data:", newBooks);
         setBooks(newBooks);
         setCurrentRow(0);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error Caught:", err);
         // setError(err.message || 'Error fetching book details');
-      })
-      .finally(() => {
+      } finally {
         setIsLoading(false);
-      });
+      }
     }
   };
 
