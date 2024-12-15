@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { Box, Container, Divider, useTheme } from '@mui/material';
 import TopCategoriesSection from '../components/TopCategoriesSection';
 import MapSection from '../components/MapSection';
-import OtherReadersLoveSection from '../components/OtherReadersLoveSection';
+
+import SurpriseMeSection from '../components/SurpriseMeSection';
 import BrowseMoreSection from '../components/BrowseMoreSection';
 import PeriodLoversSection from '../components/PeriodLoversSection';
 import { customFetch } from "../utils/customFetch";
@@ -34,8 +35,8 @@ const RecsPage = () => {
   const [periodBooks, setPeriodBooks] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
 
-  const [otherReadersLoading, setOtherReadersLoading] = useState(false);
-  const [otherReaderBooks, setOtherReaderBooks] = useState([]);
+  const [surpriseMeLoading, setSurpriseMeLoading] = useState(false);
+  const [surpriseMeBooks, setSurpriseMeBooks] = useState([]);
 
   const handleMarkerClick = (location_id, city, country) => {
     setSelectedLocation(location_id); 
@@ -60,8 +61,9 @@ const RecsPage = () => {
     console.log("Category:", category);
     setDrawerTrigger("category");
     const fetchCategoryBooks = async () => {
+      const encodedCategory = encodeURIComponent(category);
       const responseJson = await customFetch(
-        `${process.env.REACT_APP_API_BASE}/category_books_recs?category=${category}`,
+        `${process.env.REACT_APP_API_BASE}/category_books_recs?category=${encodedCategory}`,
         { method: "GET" },
         navigate
       );
@@ -77,6 +79,34 @@ const RecsPage = () => {
     setDrawerTrigger("period");
     // fetch books
     // TO DO - similar to fetch above but these are BX_books so need to fetch from those
+    // const fetchPeriodBooks = async () => {
+    //   const responseJson = await customFetch(
+    //     `${process.env.REACT_APP_API_BASE}/category_books_recs?category=${category}`,
+    //     { method: "GET" },
+    //     navigate
+    //   );
+    //   console.log("Category books:", responseJson);
+    //   setDrawerBooks(responseJson.data);
+    // }
+    // fetchCategoryBooks();
+    setDrawerOpen(true);
+  }
+
+  const handleSurpriseMeClick = (category) => {
+    setSelectedCategory(category);
+    console.log("Surprise me category:", category);
+    setDrawerTrigger("category");
+    const fetchSurpriseMeBooks = async () => {
+      const encodedCategory = encodeURIComponent(category);
+      const responseJson = await customFetch(
+        `${process.env.REACT_APP_API_BASE}/category_books_recs?category=${encodedCategory}`,
+        { method: "GET" },
+        navigate
+      );
+      console.log("Surprise me books:", responseJson);
+      setDrawerBooks(responseJson.data);
+    }
+    fetchSurpriseMeBooks();
     setDrawerOpen(true);
   }
   
@@ -152,13 +182,14 @@ const RecsPage = () => {
       onMarkerClick: null,
       onCategoryClick: handleCategoryClick,
       onTimePeriodClick: null,
+      onSurpriseMeClick: null,
     },
     {
       component: PeriodLoversSection,
       name: "PeriodLoversSection",
       fetchData: async () => {
         try {
-          setTopcategoriesLoading(true);
+          setPeriodBooksLoading(true);
           const responseJson = await customFetch(
               `${process.env.REACT_APP_API_BASE}/period_books_rec`,
               { method: "GET" },
@@ -179,35 +210,40 @@ const RecsPage = () => {
       error: error,
       onMarkerClick: null,
       onCategoryClick: null,
-      onTimePeriodClick: handleTimePeriodClick,
+      onTimePeriodClick: null,
+      onSurpriseMeClick: handleSurpriseMeClick,
     },
     {
-      component: OtherReadersLoveSection,
-      name: "OtherReadersLoveSection",
+      component: SurpriseMeSection,
+      name: "SurpriseMeSection",
       fetchData: async () => {
+        if (surpriseMeBooks.length > 0) return;
+        
         try {
-          setOtherReadersLoading(true);
+          console.log("Fetching SurpriseMe books");
+          setSurpriseMeLoading(true);
           const responseJson = await customFetch(
-              `${process.env.REACT_APP_API_BASE}/book_recs?criteria=similar_age`,
-              { method: "GET" },
-              navigate
+            `${process.env.REACT_APP_API_BASE}/category_recs?similar=0`,
+            { method: "GET" },
+            navigate
           );
-          console.log("OtherReader results:", responseJson); 
-          setOtherReaderBooks(responseJson); 
+          console.log("SurpriseMe results:", responseJson);
+          setSurpriseMeBooks(responseJson);
         } catch (err) {
-          console.error("Error fetching OtherReader recs:", err.message);
-          setError("Failed to load OtherReader recs.");
+          console.error("Error fetching SurpriseMe recs:", err.message);
+          setError("Failed to load SurpriseMe recs.");
         } finally {
-          setOtherReadersLoading(false);
+          setSurpriseMeLoading(false);
         }
       },
-      data: otherReaderBooks,
-      loading: otherReadersLoading,
+      data: surpriseMeBooks,
+      loading: surpriseMeLoading,
       fetched: false,
       error: error,
       onMarkerClick: null,
       onCategoryClick: null,
       onTimePeriodClick: null,
+      onSurpriseMeClick: handleSurpriseMeClick
     },
     {
       component: BrowseMoreSection,
@@ -235,11 +271,8 @@ const RecsPage = () => {
               setVisibleSection(index);
 
               if (!sections[index].fetched && sections[index].fetchData) {
-                sections[index]
-                  .fetchData()
-                  .then(() => {
-                    sections[index].fetched = true;
-                  })
+                sections[index].fetched = true;
+                sections[index].fetchData()
                   .catch((error) => {
                     console.error(`Error fetching data for : ${sections[index].name}`, error);
                   });
@@ -311,6 +344,7 @@ const RecsPage = () => {
               onMarkerClick={sections[index].onMarkerClick}
               onCategoryClick={sections[index].onCategoryClick}
               onTimePeriodClick={sections[index].onTimePeriodClick}
+              onSurpriseMeClick={sections[index].onSurpriseMeClick}
               />
             </Box>
 

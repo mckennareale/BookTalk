@@ -8,7 +8,7 @@ import time_3 from "../assets/time_3.png";
 import time_4 from "../assets/time_4.png";
 import time_5 from "../assets/time_5.png";
 
-const PeriodLoversSection = () => {
+const PeriodLoversSection = ({ data = [], error, loading, onPeriodClick }) => {
 
   const categories = [
     "Y2K and Today", 
