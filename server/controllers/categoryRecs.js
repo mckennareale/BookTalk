@@ -7,8 +7,8 @@ async function getCategoryRecs(req, res) {
     // -- test book id = 158595294X
     // -- top category = fiction
     const similar = req.query.similar;
-    const user_id = 'A1FQM00JX1FK4R';
-    // const user_id = req.userId;
+    // const user_id = 'A1FQM00JX1FK4R';
+    const user_id = req.userId;
     const num_app_user_top_categories = 10;
     const num_overlap_required = 1;
     if (!user_id) {
@@ -25,43 +25,35 @@ async function getCategoryRecs(req, res) {
         // if similar = 1
         if (similar == 1) {
             categoryResult = await db.query(`
-            WITH user_categories_rank AS (
-                SELECT LOWER(categories) AS categories,
+                WITH user_categories_rank AS (
+                    SELECT LOWER(categories) AS categories,
                     COUNT(r.book_id) AS user_cnt,
                     ROW_NUMBER() OVER (ORDER BY COUNT(r.book_id) DESC) AS rank
-                FROM has_reviewed r
-                JOIN amazon_books ab ON r.book_id = ab.id
-                WHERE r.user_id = 'd6dcc447-e5e6-477c-84a1-b9e4d5ada884'
-                GROUP BY LOWER(categories)
-            ),
-            user_top_categories AS (
-                SELECT categories
-                FROM user_categories_rank
-                WHERE rank <= 10
-            ),
-            similar_bx_users AS (
-                SELECT bu.id AS bx_user_ids
+                    FROM has_reviewed r JOIN amazon_books ab
+                                        on r.book_id = ab.id
+                    WHERE r.user_id = '${user_id}' AND categories IS NOT NULL
+                    GROUP BY categories
+                    LIMIT 10
+                ),
+                similar_bx_users AS (
+                SELECT bu.id AS bx_user_ids,
+                COUNT(DISTINCT bb.category) AS overlap_count
                 FROM bx_books bb
                 JOIN bx_reviews br ON bb.isbn = br.isbn
                 JOIN bx_users bu ON br.user_id = bu.id
-                WHERE bb.category IN (SELECT categories FROM user_top_categories)
+                WHERE category IN (SELECT LOWER(categories) AS categories FROM user_categories_rank)
                 GROUP BY bu.id
                 HAVING COUNT(DISTINCT bb.category) > 1
-            ),
-            filtered_categories AS (
-                SELECT DISTINCT bb2.category
+                )
+                SELECT DISTINCT category
                 FROM bx_books bb2
                 JOIN bx_reviews br2 ON bb2.isbn = br2.isbn
                 JOIN bx_users bu2 ON br2.user_id = bu2.id
-                WHERE bu2.id IN (SELECT bx_user_ids FROM similar_bx_users)
-                AND bb2.category IN (SELECT LOWER(categories) FROM amazon_books)
-            )
-            SELECT category
-            FROM filtered_categories fc
-            LEFT JOIN user_categories_rank ucr
-            ON fc.category LIKE '%' || ucr.categories || '%'
-            WHERE ucr.categories IS NULL
-            LIMIT 10;
+                WHERE bb2.category IS NOT NULL
+                AND bu2.id IN (SELECT bx_user_ids FROM  similar_bx_users)
+                AND category NOT IN (SELECT categories FROM user_categories_rank)
+                AND category IN (SELECT LOWER(categories) AS categories FROM amazon_books)
+                LIMIT 10;
         `);
         //  [user_id, num_app_user_top_categories, num_overlap_required]
         if (categoryResult.rows.length === 0) {
