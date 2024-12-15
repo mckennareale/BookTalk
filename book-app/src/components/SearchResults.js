@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'; // Import NavLink
 import { Container, Box } from '@mui/material'; // Import Container and Box from Material-UI
 import '../css/PartialBookCard.css'; // Import the CSS file for styles
 import { Button, Typography, useTheme } from '@mui/material';
+import { customFetch } from "../utils/customFetch";
 
 const SearchResults = ({ searchMode, title, filters }) => {
   const theme = useTheme();
@@ -38,6 +39,12 @@ const SearchResults = ({ searchMode, title, filters }) => {
             return [key, classValue];
           }
         }
+        if (key === 'category' && value) {
+          console.log("Category Value:", value);
+          const categoryValue = value.toString().toLowerCase();
+          console.log("Category updated Value:", categoryValue);
+          return [key, categoryValue];
+        }
         return [key, value];
       }).filter(([_, value]) => value !== null && value !== '' && value !== false)
     ) : {};
@@ -58,47 +65,24 @@ const SearchResults = ({ searchMode, title, filters }) => {
     if (query && Object.keys(query).length > 0) {
       console.log("Final Payload:", JSON.stringify({ data: query }));
 
-      fetch(`${process.env.REACT_APP_API_BASE}/books/search`, {
+      customFetch(`${process.env.REACT_APP_API_BASE}/books/search`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           data: query
         })
       })
-      .then(async (res) => {
-        console.log("Response Object:", res); // Logs the full response object
-    
-        // Log response status and status text
-        console.log("Response Status:", res.status); 
-        console.log("Response Status Text:", res.statusText); 
-        
-        if (!res.ok) { // Check if the response status indicates an error
-            const errorMessage = `Network response was not ok: ${res.statusText}`; 
-            console.error(errorMessage); 
-            throw new Error(errorMessage);
-        }
-    
-        // Parse and log the response body as JSON
-        const data = await res.json();
-        console.log("Parsed Response Data:", data); 
-    
-        return data;
-    })
-    .then((data) => {
-        console.log("Processed Data:", data); // Log the final data received
-        setBooks(data.data || []); // Update the state with books
-        console.log("Books State after Update:", books); // Log the updated books state
-
-    })
-    .catch((err) => {
-        console.error("Error Caught:", err); // Log the error for debugging
-        setError(err.message || 'Error fetching book details'); // Set the error state
-    })
-    .finally(() => {
-        setLoading(false); // Set loading to false regardless of success or failure
-    });
+      .then((data) => {
+        console.log("Processed Data:", data);
+        setBooks(data.data || []);
+        console.log("Books State after Update:", books);
+      })
+      .catch((err) => {
+        console.error("Error Caught:", err);
+        setError(err.message || 'Error fetching book details');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
     } else {
       setLoading(false);
     }
@@ -193,7 +177,7 @@ const SearchResults = ({ searchMode, title, filters }) => {
                   WebkitBoxOrient: 'vertical'
                 }}
               >
-                Category: {(book.category && book.category.replace(/[\[\]']/g, '')) || 'None'}
+                Category: {(book.category && book.category.replace(/[\[\]']/g, '').charAt(0).toUpperCase() + book.category.slice(1)) || 'None'}
               </Typography>
               <Typography variant="body2">
                 Average Rating: {book.average_rating || 'None'}
