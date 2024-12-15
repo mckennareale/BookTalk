@@ -242,9 +242,34 @@ async function getCategoryBooksRecs(req, res) {
     }
 }
 
+// Route - GET /get_period_books?isbns=X,Y,Z
+async function getPeriodBooksRecs(req, res) {
+    const isbns = req.query.isbns.split(','); // Split the comma-separated string into an array
+    console.log('ISBNs:', isbns);
+    
+    try {
+        // Create the parameterized query
+        const query = {
+            text: `
+                SELECT bb.title, bb.author, bb.year_published, bb.category
+                FROM bx_books bb
+                WHERE bb.isbn = ANY($1)
+            `,
+            values: [isbns] // Pass the array of ISBNs as a parameter
+        };
+        
+        const result = await db.query(query);
+        return res.status(200).json({ data: result.rows });
+    } catch (error) {
+        console.error('Error fetching period books recommendations:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     getBookRecs,
     getPeriodBookRecs,
     getSetInLocationBooksRecs,
-    getCategoryBooksRecs
+    getCategoryBooksRecs,
+    getPeriodBooksRecs
 }
