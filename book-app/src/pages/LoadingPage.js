@@ -9,7 +9,7 @@ const LoadingPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const setupTempTables = async () => {
+        const setupMaterializedView = async () => {
             try {
                 const setupResponse = await customFetch(
                     `${process.env.REACT_APP_API_BASE}/setup_temp_tables`,
@@ -25,7 +25,7 @@ const LoadingPage = () => {
             }
         };
 
-        setupTempTables();
+        setupMaterializedView();
     }, [navigate]);
 
     return (
