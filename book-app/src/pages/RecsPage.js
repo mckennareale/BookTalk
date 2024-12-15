@@ -37,16 +37,14 @@ const RecsPage = () => {
   const [otherReadersLoading, setOtherReadersLoading] = useState(false);
   const [otherReaderBooks, setOtherReaderBooks] = useState([]);
 
-  const [browseMoreLoading, setBrowseMoreLoading] = useState(false);
-  const [browseMoreBooks, setBrowseMoreBooks] = useState([]);
-  const [browseMoreCriteria, setBrowseMoreCriteria] = useState("author");
-
   const handleMarkerClick = (location_id, city, country) => {
     setSelectedLocation(location_id); 
     setSelectedCity(city);
     setSelectedCountry(country);
     setDrawerTrigger("location");
     // fetch books
+    // TO DO - write an endpoint to allow fetch for top books set in location_id
+    // Then integrate it here - store the results in drawerBooks
     setDrawerOpen(true); 
   };
 
@@ -54,6 +52,7 @@ const RecsPage = () => {
     setSelectedCategory(category);
     setDrawerTrigger("category");
     // fetch books
+    // TO DO - similar to fetch above but for books with category
     setDrawerOpen(true);
   }
 
@@ -61,9 +60,9 @@ const RecsPage = () => {
     setSelectedPeriod(timePeriod);
     setDrawerTrigger("period");
     // fetch books
+    // TO DO - similar to fetch above but these are BX_books so need to fetch from those
     setDrawerOpen(true);
   }
-
   
   const closeDrawer = () => setDrawerOpen(false);
 
