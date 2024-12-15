@@ -33,7 +33,6 @@ const MapSection = ({ data = [], error, loading, onMarkerClick }) => {
         })
     }
     
-    
     return (
 
         <Box
@@ -58,7 +57,6 @@ const MapSection = ({ data = [], error, loading, onMarkerClick }) => {
             </Typography>
             {loading && <CircularProgress />}
             {error && <Typography color="error">{error}</Typography>}
-            
             
             <ComposableMap 
                 projection="geoEqualEarth"

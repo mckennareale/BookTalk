@@ -34,6 +34,13 @@ const RecsPage = () => {
   const [periodBooks, setPeriodBooks] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
 
+  const [otherReadersLoading, setOtherReadersLoading] = useState(false);
+  const [otherReaderBooks, setOtherReaderBooks] = useState([]);
+
+  const [browseMoreLoading, setBrowseMoreLoading] = useState(false);
+  const [browseMoreBooks, setBrowseMoreBooks] = useState([]);
+  const [browseMoreCriteria, setBrowseMoreCriteria] = useState("author");
+
   const handleMarkerClick = (location_id, city, country) => {
     setSelectedLocation(location_id); 
     setSelectedCity(city);
@@ -53,7 +60,27 @@ const RecsPage = () => {
   const handleTimePeriodClick = (timePeriod) => {
     setSelectedPeriod(timePeriod);
     setDrawerTrigger("period");
+    // fetch books
     setDrawerOpen(true);
+  }
+
+  const handleBrowseMoreToggle = async (criteria) => {
+    setBrowseMoreCriteria(criteria);
+    try {
+      (true);
+      const responseJson = await customFetch(
+          `${process.env.REACT_APP_API_BASE}/book_recs?criteria=similar_age`,
+          { method: "GET" },
+          navigate
+      );
+      console.log("OtherReader results:", responseJson); 
+      setOtherReaderBooks(responseJson); 
+    } catch (err) {
+      console.error("Error fetching OtherReader recs:", err.message);
+      setError("Failed to load OtherReader recs.");
+    } finally {
+      setOtherReadersLoading(false);
+    }
   }
   
   const closeDrawer = () => setDrawerOpen(false);
@@ -161,10 +188,24 @@ const RecsPage = () => {
       component: OtherReadersLoveSection,
       name: "OtherReadersLoveSection",
       fetchData: async () => {
-
+        try {
+          setOtherReadersLoading(true);
+          const responseJson = await customFetch(
+              `${process.env.REACT_APP_API_BASE}/book_recs?criteria=similar_age`,
+              { method: "GET" },
+              navigate
+          );
+          console.log("OtherReader results:", responseJson); 
+          setOtherReaderBooks(responseJson); 
+        } catch (err) {
+          console.error("Error fetching OtherReader recs:", err.message);
+          setError("Failed to load OtherReader recs.");
+        } finally {
+          setOtherReadersLoading(false);
+        }
       },
-      data: null,
-      loading: false,
+      data: OtherReaderBooks,
+      loading: otherReadersLoading,
       fetched: false,
       error: error,
       onMarkerClick: null,
@@ -174,27 +215,11 @@ const RecsPage = () => {
     {
       component: BrowseMoreSection,
       name: "BrowseMoreSection",
-      fetchData: async () => {
-        try {
-          setTopcategoriesLoading(true);
-          const responseJson = await customFetch(
-              `${process.env.REACT_APP_API_BASE}/category_recs?similar=1`,
-              { method: "GET" },
-              navigate
-          );
-          console.log("Top categories:", responseJson); 
-          setLocations(responseJson.data); 
-        } catch (err) {
-          console.error("Error fetching category recs:", err.message);
-          setError("Failed to load location recs.");
-        } finally {
-          setTopcategories(false);
-        }
-      },
+      fetchData: null,
       data: null,
-      loading: false,
+      loading: null,
       fetched: false,
-      error: error,
+      error: null,
       onMarkerClick: null,
       onCategoryClick: null,
       onTimePeriodClick: null,

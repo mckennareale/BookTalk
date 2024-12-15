@@ -37,7 +37,7 @@ const OtherReadersLoveSection = () => {
         sx={{ 
         color: 'primary.main',
         }}>
-        other readers love these books...
+        other readers of your age love these books...
     </Typography>
 
     <Box
