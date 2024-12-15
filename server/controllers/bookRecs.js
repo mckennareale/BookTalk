@@ -77,7 +77,7 @@ async function getBookRecs(req, res) {
             GROUP BY ab.classification
             ORDER BY review_count DESC
             LIMIT 1)
-            SELECT ab.id, ab.title, ab.image, ab.classification, AVG(br.review_score)
+            SELECT ab.id, ab.title, ab.image, ab.classification, ab.categories, ROUND(AVG(br.review_score), 2) as avg_rating
             FROM amazon_books ab
             LEFT JOIN books_rating br on ab.id = br.book_id
             LEFT JOIN authors a on ab.id = a.id
