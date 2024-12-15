@@ -30,7 +30,7 @@ const customFetch = async (url, options = {}, navigate) => {
         }
 
         const returnData = await res.json();
-        console.log(returnData);
+        // console.log(returnData);
         return returnData;
 
     } catch (error) {

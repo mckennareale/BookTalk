@@ -15,7 +15,7 @@ const BookShelf = ({ books = [] }) => {
     { isbn: 'test5', color: '#f19c79' },
   ];
 
-  console.log('Books being rendered:', testBooks); // Debug log
+  // console.log('Books being rendered:', testBooks); // Debug log
 
   const getOffset = (index) => {
     if (hoveredIndex === null) return 0;

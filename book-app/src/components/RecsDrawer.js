@@ -34,20 +34,25 @@ const RecsDrawer = ({ open, toggleDrawer,
         >
         <Box
             role="presentation"
+            display='flex'
+            flexDirection="column"
+            justifyContent="center"
             onClick={(event) => event.stopPropagation()}
             onKeyDown={(event) => event.stopPropagation()}
             sx={{ 
-            width: 250, 
-            padding: '10px',
+            maxWidth: "30vw", 
+            minWidth: "20vw",
+            padding: '20px',
             }}
         >
             <Box
                 sx={{
-                    
+                    textAlign: 'center',
+                    // backgroundColor: '#ADD8E6', // light blue for dev
                 }}>
-            <Typography variant="h3">{header}</Typography>
+                <Typography variant="h5">{header}</Typography>
             </Box>
-
+            <br></br>
             <Box
                 sx={{
                     display: "flex",
