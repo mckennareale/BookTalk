@@ -151,18 +151,6 @@ const HomePage = () => {
                                         <Typography variant="subtitle1">
                                             {book.authors?.join(", ")}
                                         </Typography>
-                                        <a
-                                            href={book.preview_link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{
-                                                marginTop: "10px",
-                                                color: "#A44A3F",
-                                                textDecoration: "none",
-                                            }}
-                                        >
-                                            Preview
-                                        </a>
                                     </Box>
                                 ))}
                             </Box>
