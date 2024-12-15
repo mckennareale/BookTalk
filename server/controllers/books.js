@@ -254,7 +254,7 @@ async function searchBooks(req, res) {
         if (count > 1) {
             queryStr += ` AND `;
         }
-        queryStr += ` ab.film_name IS NOT NULL `;
+        queryStr += ` ab.film_name IS NOT NULL AND ab.film_name != 'None' `;
     }
 
     queryStr += `GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories 
@@ -275,7 +275,7 @@ async function searchBooks(req, res) {
         return res.status(200).json({ data: result});
     } catch(e) {
         console.error(`Error getting search results: `, e);
-        return res.status(500).json({ message: "Internal server error"});
+        return res.status(200).json({ message: "Internal server error"});
     }
 
 }
