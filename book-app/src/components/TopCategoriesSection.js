@@ -15,6 +15,11 @@ const TopCategoriesSection = ({ data = [], error, loading, onCategoryClick }) =>
     return Math.min(baseHeight + (text.length * heightPerChar), 200); // max height of 200px
   };
 
+  // if data from server is empty, use default data
+  if (data.length === 0) {
+  data = ['fiction', 'history', 'juvenile fiction', 'computers', 'biography & autobiography'];
+  }
+
   return (
     <Box
       flexDirection="column"

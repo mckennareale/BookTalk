@@ -57,32 +57,68 @@ async function getCategoryRecs(req, res) {
         `);
         //  [user_id, num_app_user_top_categories, num_overlap_required]
         if (categoryResult.rows.length === 0) {
-                return res.status(400).json({ message: 
-                    `No top categories of similar users found for ${user_id}`});
+                return res.status(200).json([]);
             }
             const result = categoryResult.rows.map(row => row.category);
             return res.status(200).json(result);
         } 
 // Route 13 - GET api/category_recs: Get top categories from bx users who have never read books in app user’s categories
         else if (similar == 0) {
-        const categoryResult = await db.query(`
-            SELECT category
-            FROM pre_aggregated_ratings
-            JOIN amazon_books_lower_categories_view abv ON LOWER(category) = abv.lower_categories
-            ORDER BY count_rating DESC, avg_rating DESC
-            LIMIT 10;`);
-            //[user_id,]
-            if (categoryResult.rows.length === 0) {
-                return res.status(400).json({ message: 
-                    `No top categories of dissimilar users found for ${user_id}`});
+            try {
+                console.log("Executing query for similar=0");
+                const categoryResult = await db.query(`
+                WITH user_categories AS (
+                    SELECT DISTINCT LOWER(categories) AS categories
+                    FROM has_reviewed r
+                    JOIN amazon_books ab
+                    ON r.book_id = ab.id
+                    WHERE r.user_id = user_id
+                ),
+                bx_users_same_cat AS (
+                    SELECT bu.id AS bx_user_ids
+                    FROM bx_books bb
+                    JOIN bx_reviews br ON bb.isbn = br.isbn
+                    JOIN bx_users bu ON br.user_id = bu.id
+                    WHERE category IN (SELECT categories FROM user_categories)
+                ),
+                bx_users_diff_cat AS (
+                    SELECT id
+                    FROM bx_users
+                    WHERE id NOT IN (SELECT bx_user_ids FROM bx_users_same_cat)
+                )
+                SELECT category
+                FROM bx_books bb3
+                JOIN bx_reviews br3 ON bb3.isbn = br3.isbn
+                JOIN bx_users bu3 ON br3.user_id = bu3.id
+                WHERE bu3.id IN (SELECT id FROM bx_users_diff_cat)
+                AND category IN (SELECT LOWER(categories) FROM amazon_books)
+                GROUP BY category
+                ORDER BY COUNT(br3.rating) DESC, AVG(br3.rating) DESC
+                LIMIT 10;`);
+
+                console.log("Query results:", categoryResult.rows);
+
+                if (categoryResult.rows.length === 0) {
+                    return res.status(200).json([]);
+                }
+                
+                const result = categoryResult.rows.map(row => row.category);
+                return res.status(200).json(result);
+            } catch (dbError) {
+                console.error("Database error:", dbError);
+                return res.status(500).json({ 
+                    message: "Database error",
+                    error: dbError.message 
+                });
             }
-            const result = categoryResult.rows.map(row => row.category);
-            return res.status(200).json(result);
         }
         
     } catch(e) {
         console.error(`Error getting recommendations for ${user_id}: `, e);
-        return res.status(500).json({ message: "Internal server error"});
+        return res.status(500).json({ 
+            message: "Internal server error",
+            error: e.message
+        });
     }
 }
 

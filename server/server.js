@@ -43,13 +43,13 @@ const baseRouter = express.Router();
 app.use('/api', baseRouter);
 // Books
 baseRouter.get('/books/full_info/:bookId', authMiddleware, booksControllers.getBookFullInfo); // Route 1
-baseRouter.post('/books/partialInfo', booksControllers.getBooksPartialInfo); // Route 2
-baseRouter.post('/books/search', booksControllers.searchBooks); // Route 3 (also for 4, 5)
+baseRouter.post('/books/partialInfo', authMiddleware, booksControllers.getBooksPartialInfo); // Route 2
+baseRouter.post('/books/search', authMiddleware, booksControllers.searchBooks); // Route 3 (also for 4, 5)
 // Recs
-baseRouter.get('/book_recs', bookRecsControllers.getBookRecs); // Route 6, 7, 8, 10
-baseRouter.get('/period_books_rec', bookRecsControllers.getPeriodBookRecs); // Route 11
+baseRouter.get('/book_recs', authMiddleware, bookRecsControllers.getBookRecs); // Route 6, 7, 8, 10
+baseRouter.get('/period_books_rec', authMiddleware, bookRecsControllers.getPeriodBookRecs); // Route 11
 baseRouter.get('/set_in_location_recs', authMiddleware, locationRecsControllers.getLocationRecs); // Route 9
-baseRouter.get('/category_recs', categoryRecsControllers.getCategoryRecs); // Route 12, 13
+baseRouter.get('/category_recs', authMiddleware, categoryRecsControllers.getCategoryRecs); // Route 12, 13
 baseRouter.get('/category_books_recs', authMiddleware, bookRecsControllers.getCategoryBooksRecs); // new route for recs
 baseRouter.get('/set_in_location_books_recs', authMiddleware, bookRecsControllers.getSetInLocationBooksRecs); // new route for recs
 // User books
