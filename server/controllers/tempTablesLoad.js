@@ -167,6 +167,10 @@ async function setupMaterializedView(req, res) {
         await client.query(createViewQuery);
         await client.query(createClassificationView)
 
+        // const indexView = await client.query(`
+        //     CREATE INDEX idx_mv_type ON ${viewNameClassification} (type);
+        // `);
+
         const checkView = await client.query(`
             SELECT * 
             FROM pg_matviews 

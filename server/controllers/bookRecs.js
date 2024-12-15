@@ -20,6 +20,9 @@ async function getBookRecs(req, res) {
     //     return res.status(400).json({ message: 'Missing or invalid book ID' });
     // }
 
+    const sanitizedUid = user_id.replace(/-/g, '_');
+    const viewNameClassification = `user_${sanitizedUid}_classification_view`;
+
     let query;
     switch (criteria) {
         // because you loved 'author name' - returns top rated books from ONE author that the app user loves the most
@@ -66,58 +69,106 @@ async function getBookRecs(req, res) {
                 LIMIT ${num_recs_to_return};
             `;
             break;
-        case 'classification':
-            query = `
-            WITH top_app_user_classification AS (
-            SELECT ab.classification as top_classification, COUNT(hr.book_id) as review_count
-            FROM has_reviewed hr
-            JOIN amazon_books ab on hr.book_id = ab.id
-            JOIN authors a on ab.id = a.id
-            WHERE hr.user_id = '${user_id}'
-            GROUP BY ab.classification
-            ORDER BY review_count DESC
-            LIMIT 1)
-            SELECT ab.id, ab.title, ab.image, ab.classification, ab.categories, ROUND(AVG(br.review_score), 2) as avg_rating
-            FROM amazon_books ab
-            LEFT JOIN books_rating br on ab.id = br.book_id
-            LEFT JOIN authors a on ab.id = a.id
-            WHERE
-            CASE
-            --        Children case --- more from the same category
-                WHEN (SELECT top_classification FROM top_app_user_classification) = 'children' THEN
-                        ab.classification = 'children'
-                        AND ab.published_date > date_part('year', CURRENT_DATE) - 15
-                        AND ab.categories in (
-                            SELECT categories from has_reviewed hr
-                            LEFT JOIN amazon_books ab on hr.book_id = ab.id
-                            WHERE ab.classification = 'children'
+            case 'classification':
+                try {
+                    // Step 1: Fetch Top Classification
+                    const classificationResult = await db.query(`
+                        SELECT value AS top_classification
+                        FROM ${viewNameClassification}
+                        WHERE type = 'classification';
+                    `);
+                    
+                    const topClassification = classificationResult.rows[0]?.top_classification;
+                    console.log('Top Classification:', topClassification);
+    
+                    if (!topClassification) {
+                        return res.status(404).json({ message: 'Top classification not found.' });
+                    }
+    
+                    // Step 2: Dynamically Execute Based on Classification
+                    if (topClassification === 'children') {
+                        query = `
+                            WITH children_categories AS (
+                                SELECT value AS category
+                                FROM ${viewNameClassification}
+                                WHERE type = 'categories'
                             )
-                        AND br.review_score is not null
-                        AND ab.id NOT IN (SELECT book_id from has_reviewed where user_id = '${user_id}')
-                -- YA case -- more from the same author
-                WHEN (SELECT top_classification FROM top_app_user_classification) = 'YA' THEN
-                    classification = 'YA'
-                    AND published_date >= date_part('year', CURRENT_DATE) - 15
-                        AND a.authors in (
-                            SELECT a.authors FROM has_reviewed hr
-                            LEFT JOIN amazon_books ab on hr.book_id = ab.id
-                            LEFT JOIN authors a on ab.id = a.id
-                            WHERE hr.user_id = '${user_id}'
-                            AND ab.classification = 'YA'
-                        )
-                        AND ab.id NOT IN (SELECT book_id from has_reviewed where user_id = '${user_id}')
-                        AND br.review_score IS NOT NULL
-                -- Adult case --- just top bestsellers
-                WHEN (SELECT top_classification FROM top_app_user_classification) = 'adult' THEN
-                    classification = 'adult'
-                        AND br.review_score IS NOT NULL
-                        AND ab.id NOT IN (SELECT book_id from has_reviewed where user_id = '${user_id}')
-            END
-            GROUP BY ab.id, ab.title, ab.image, ab.classification
-            ORDER BY AVG(br.review_score) DESC
-            LIMIT 10;
-            `;
-            break;
+                            SELECT ab.id, ab.title, ab.image, ab.classification, ab.categories, 
+                                   ROUND(AVG(br.review_score), 2) AS avg_rating
+                            FROM amazon_books ab
+                            LEFT JOIN books_rating br ON ab.id = br.book_id
+                            WHERE ab.classification = 'children'
+                              AND ab.published_date > date_part('year', CURRENT_DATE) - 15
+                              AND ab.categories IN (SELECT category FROM children_categories)
+                              AND br.review_score IS NOT NULL
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM has_reviewed hr
+                                  WHERE hr.book_id = ab.id AND hr.user_id = $1
+                              )
+                            GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories
+                            ORDER BY AVG(br.review_score) DESC
+                            LIMIT ${num_recs_to_return};
+                        `;
+                    } else if (topClassification === 'YA') {
+                        query = `
+                            WITH ya_authors AS (
+                                SELECT value AS author
+                                FROM ${viewNameClassification}
+                                WHERE type = 'authors'
+                            )
+                            SELECT ab.id, ab.title, ab.image, ab.classification, ab.categories, 
+                                   ROUND(AVG(br.review_score), 2) AS avg_rating
+                            FROM amazon_books ab
+                            LEFT JOIN books_rating br ON ab.id = br.book_id
+                            LEFT JOIN authors a ON ab.id = a.id
+                            WHERE ab.classification = 'YA'
+                              AND ab.published_date >= date_part('year', CURRENT_DATE) - 15
+                              AND a.authors IN (SELECT author FROM ya_authors)
+                              AND br.review_score IS NOT NULL
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM has_reviewed hr
+                                  WHERE hr.book_id = ab.id AND hr.user_id = $1
+                              )
+                            GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories
+                            ORDER BY AVG(br.review_score) DESC
+                            LIMIT ${num_recs_to_return};
+                        `;
+                    } else if (topClassification === 'adult') {
+                        query = `
+                            SELECT ab.id, ab.title, ab.image, ab.classification, ab.categories, 
+                                   ROUND(AVG(br.review_score), 2) AS avg_rating
+                            FROM amazon_books ab
+                            LEFT JOIN books_rating br ON ab.id = br.book_id
+                            WHERE ab.classification = 'adult'
+                              AND br.review_score IS NOT NULL
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM has_reviewed hr
+                                  WHERE hr.book_id = ab.id AND hr.user_id = $1
+                              )
+                            GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories
+                            ORDER BY AVG(br.review_score) DESC
+                            LIMIT ${num_recs_to_return};
+                        `;
+                    } else {
+                        return res.status(400).json({ message: 'Invalid classification type.' });
+                    }
+    
+                    // Step 3: Execute the Query
+                    console.log('Executing query for:', topClassification);
+                    const result = await db.query(query, [user_id]);
+                    if (result.rows.length === 0) {
+                        return res.status(404).json({ message: 'No recommendations found.' });
+                    }
+                    return res.status(200).json({ data: result.rows });
+    
+                } catch (error) {
+                    console.error('Error in classification query:', error);
+                    return res.status(500).json({ message: 'Internal server error.' });
+                }
+    
         default:
             return res.status(400).json({ message: 'Invalid criteria' });
     }
