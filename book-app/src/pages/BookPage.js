@@ -3,6 +3,13 @@ import { useParams } from "react-router-dom";
 import { customFetch } from "../utils/customFetch";
 import { Typography } from "@mui/material";
 
+const capitalizeWords = (str) => {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const BookPage = () => {
   const { bookId } = useParams(); // Get bookId from URL parameters
   const [book, setBook] = useState(null); // State for book details
@@ -109,7 +116,7 @@ const BookPage = () => {
               <strong>Published Date:</strong> {book.published_date}
             </p>
             <p style={{ fontSize: "1.2rem" }}>
-              <strong>Category:</strong> {book.category}
+              <strong>Category:</strong> {capitalizeWords(book.category)}
             </p>
             {book.avg_rating && (
               <p style={{ fontSize: "1.2rem" }}>
@@ -120,85 +127,98 @@ const BookPage = () => {
         </div>
 
         {/* Reviews Section */}
-        <div
-          style={{
-            width: "100%", // Full width of container
-            marginLeft: "0px", // Align with the left edge of the image
-            marginRight: "0px",
-          }}
-        >
-          <Typography
-            variant="h2"
-            style={{ fontSize: "1.5rem", marginBottom: "20px" }}
-          >
-            Reviews:
-          </Typography>
+        {book.reviews && book.reviews.length > 0 ? (
           <div
             style={{
-              display: "flex",
-              flexWrap: "wrap", // Allow wrapping onto multiple rows
-              gap: "15px", // Spacing between review cards
+              width: "100%", // Full width of container
+              marginLeft: "0px", // Align with the left edge of the image
+              marginRight: "0px",
             }}
           >
-            {book.reviews.slice(0, 12).map((review, index) => (
-              <div
-                key={index}
-                onClick={() => handleReviewClick(review)} // Open modal on click
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  justifyContent: "flex-start",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  backgroundColor: "#A44A3F",
-                  color: "white",
-                  flex: "1 1 calc(20% - 15px)", // Dynamic width: roughly 5 cards per row
-                  maxWidth: "250px", // Ensure consistent card size
-                  minWidth: "150px", // Minimum card size for smaller screens
-                  height: "200px", // Fixed height for cards
-                  overflow: "hidden",
-                  textAlign: "left",
-                  cursor: "pointer",
-                }}
-              >
+            <Typography
+              variant="h2"
+              style={{ fontSize: "1.5rem", marginBottom: "20px" }}
+            >
+              Reviews:
+            </Typography>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap", // Allow wrapping onto multiple rows
+                gap: "15px", // Spacing between review cards
+              }}
+            >
+              {book.reviews.slice(0, 12).map((review, index) => (
                 <div
+                  key={index}
+                  onClick={() => handleReviewClick(review)} // Open modal on click
                   style={{
                     display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
                     justifyContent: "flex-start",
-                    marginBottom: "10px",
-                  }}
-                >
-                  {[...Array(5)].map((_, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        color: i < review.review_score ? "gray" : "#D3D3D3",
-                        fontSize: "1rem",
-                      }}
-                    >
-                      &#9733;
-                    </span>
-                  ))}
-                </div>
-                <p
-                  style={{
-                    fontSize: "0.9rem",
-                    lineHeight: "1.4",
-                    maxHeight: "calc(200px - 50px)",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    backgroundColor: "#A44A3F",
+                    color: "white",
+                    flex: "1 1 calc(20% - 15px)", // Dynamic width: roughly 5 cards per row
+                    maxWidth: "250px", // Ensure consistent card size
+                    minWidth: "150px", // Minimum card size for smaller screens
+                    height: "200px", // Fixed height for cards
                     overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 6,
-                    WebkitBoxOrient: "vertical",
+                    textAlign: "left",
+                    cursor: "pointer",
                   }}
                 >
-                  {review.review_text}
-                </p>
-              </div>
-            ))}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {[...Array(5)].map((_, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          color: i < review.review_score ? "gray" : "#D3D3D3",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        &#9733;
+                      </span>
+                    ))}
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "0.9rem",
+                      lineHeight: "1.4",
+                      maxHeight: "calc(200px - 50px)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 6,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {review.review_text}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <Typography 
+            variant="h6" 
+            style={{ 
+              marginTop: "20px",
+              width: "100%",
+              textAlign: "center"
+            }}
+          >
+            No reviews available for this book.
+          </Typography>
+        )}
       </div>
 
       {/* Modal */}

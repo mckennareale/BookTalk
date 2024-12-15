@@ -111,7 +111,7 @@ const RecsPage = () => {
               { method: "GET" },
               navigate
           );
-          // console.log("Locations recs:", responseJson); 
+          console.log("Locations recs:", responseJson); 
           setLocations(responseJson || []); 
         } catch (err) {
           console.error("Error fetching location recs:", err.message);
