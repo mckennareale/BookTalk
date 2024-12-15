@@ -133,22 +133,51 @@ const HomePage = () => {
                                             backgroundColor: "#FFF",
                                             padding: "20px",
                                             borderRadius: "10px",
-                                            maxWidth: "250px",
+                                            width: "250px",
+                                            height: "350px",
                                             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                                            cursor: "pointer",
+                                            transition: "transform 0.2s ease-in-out",
+                                            "&:hover": {
+                                                transform: "scale(1.02)",
+                                            },
+                                            overflow: "hidden"
                                         }}
                                     >
                                         <img
                                             src={book.image}
                                             alt={book.title}
                                             style={{
-                                                width: "100%",
-                                                height: "200px",
+                                                width: "180px",
+                                                height: "240px",
                                                 objectFit: "contain",
                                                 marginBottom: "10px",
                                             }}
                                         />
-                                        <Typography variant="h6">{book.title}</Typography>
-                                        <Typography variant="subtitle1">
+                                        <Typography 
+                                            variant="h6" 
+                                            sx={{
+                                                textAlign: "center",
+                                                fontSize: "1rem",
+                                                width: "100%",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap"
+                                            }}
+                                        >
+                                            {book.title}
+                                        </Typography>
+                                        <Typography 
+                                            variant="subtitle1"
+                                            sx={{
+                                                textAlign: "center",
+                                                fontSize: "0.9rem",
+                                                width: "100%",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap"
+                                            }}
+                                        >
                                             {book.authors?.join(", ")}
                                         </Typography>
                                     </Box>
