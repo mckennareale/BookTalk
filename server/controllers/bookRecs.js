@@ -97,17 +97,18 @@ async function getBookRecs(req, res) {
                                    ROUND(AVG(br.review_score), 2) AS avg_rating
                             FROM amazon_books ab
                             LEFT JOIN books_rating br ON ab.id = br.book_id
-                            WHERE ab.classification = 'children'
-                              AND ab.published_date > date_part('year', CURRENT_DATE) - 15
+                            WHERE 
+                                br.review_score IS NOT NULL  
+                                AND ab.classification = 'children'
+                                AND ab.published_date > date_part('year', CURRENT_DATE) - 15
                               AND ab.categories IN (SELECT category FROM children_categories)
-                              AND br.review_score IS NOT NULL
                               AND NOT EXISTS (
                                   SELECT 1
                                   FROM has_reviewed hr
                                   WHERE hr.book_id = ab.id AND hr.user_id = $1
                               )
                             GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories
-                            ORDER BY AVG(br.review_score) DESC
+                            ORDER BY avg_rating DESC
                             LIMIT ${num_recs_to_return};
                         `;
                     } else if (topClassification === 'YA') {
@@ -122,17 +123,17 @@ async function getBookRecs(req, res) {
                             FROM amazon_books ab
                             LEFT JOIN books_rating br ON ab.id = br.book_id
                             LEFT JOIN authors a ON ab.id = a.id
-                            WHERE ab.classification = 'YA'
+                            WHERE  br.review_score IS NOT NULL
+                            AND ab.classification = 'YA'
                               AND ab.published_date >= date_part('year', CURRENT_DATE) - 15
                               AND a.authors IN (SELECT author FROM ya_authors)
-                              AND br.review_score IS NOT NULL
                               AND NOT EXISTS (
                                   SELECT 1
                                   FROM has_reviewed hr
                                   WHERE hr.book_id = ab.id AND hr.user_id = $1
                               )
                             GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories
-                            ORDER BY AVG(br.review_score) DESC
+                            ORDER BY avg_rating DESC
                             LIMIT ${num_recs_to_return};
                         `;
                     } else if (topClassification === 'adult') {
@@ -141,15 +142,15 @@ async function getBookRecs(req, res) {
                                    ROUND(AVG(br.review_score), 2) AS avg_rating
                             FROM amazon_books ab
                             LEFT JOIN books_rating br ON ab.id = br.book_id
-                            WHERE ab.classification = 'adult'
-                              AND br.review_score IS NOT NULL
+                            WHERE br.review_score IS NOT NULL
+                            AND ab.classification = 'adult'
                               AND NOT EXISTS (
                                   SELECT 1
                                   FROM has_reviewed hr
                                   WHERE hr.book_id = ab.id AND hr.user_id = $1
                               )
                             GROUP BY ab.id, ab.title, ab.image, ab.classification, ab.categories
-                            ORDER BY AVG(br.review_score) DESC
+                            ORDER BY avg_rating DESC
                             LIMIT ${num_recs_to_return};
                         `;
                     } else {
