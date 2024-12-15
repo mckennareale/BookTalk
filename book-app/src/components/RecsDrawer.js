@@ -1,64 +1,64 @@
-import React, { useState } from 'react';
-import { Drawer, Typography, useTheme, Box } from '@mui/material';
+import React from 'react';
+import { Drawer, Typography, Box } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
-const RecsDrawer = ({ open, toggleDrawer, 
-    books, drawerTrigger, city, country, location_id,
-    category, timePeriod }) => {
-    
-    const theme = useTheme();
+const RecsDrawer = ({ open, toggleDrawer, books, drawerTrigger, city, country, category, timePeriod }) => {
     const navigate = useNavigate();
+    
     let header = "";
     if (drawerTrigger === "location") {
         header = `books set in ${city}, ${country}`;
     } else if (drawerTrigger === "category") {
-        header = `books in category: ${city}, ${country}`;
+        header = `books in category: ${category}`;
     } else {
         header = `books set in ${timePeriod}`;
     }
+
     const handleBookClick = (bookId) => {
         navigate(`/books/${bookId}`);
     };  
 
-  
     return (
         <Drawer 
-        anchor="right" 
-        open={open} 
-        onClose={toggleDrawer(false)}
-        PaperProps={{
-            sx: {
-            //   backgroundColor: theme.palette.background.paper
-            }
-        }}
-        >
-        <Box
-            role="presentation"
-            display='flex'
-            flexDirection="column"
-            justifyContent="center"
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => event.stopPropagation()}
-            sx={{ 
-            maxWidth: "30vw", 
-            minWidth: "20vw",
-            padding: '20px',
+            anchor="right" 
+            open={open} 
+            onClose={toggleDrawer(false)}
+            PaperProps={{
+                sx: {
+                    width: { xs: '100%', sm: '450px' },
+                    maxWidth: '100%',
+                }
             }}
         >
             <Box
                 sx={{
-                    textAlign: 'center',
-                    // backgroundColor: '#ADD8E6', // light blue for dev
-                }}>
-                <Typography variant="h5">{header}</Typography>
+                    position: 'sticky',
+                    top: 0,
+                    backgroundColor: 'background.paper',
+                    padding: '20px',
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    zIndex: 1,
+                }}
+            >
+                <Typography 
+                    variant="h6" 
+                    sx={{ 
+                        textAlign: 'center',
+                        textTransform: 'capitalize'
+                    }}
+                >
+                    {header}
+                </Typography>
             </Box>
-            <br></br>
+
             <Box
                 sx={{
                     display: "flex",
-                    flexWrap: "wrap",
-                    gap: "15px",
-                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: "16px",
+                    padding: "20px",
+                    overflowY: 'auto'
                 }}
             >
                 {books.map((book) => (
@@ -67,34 +67,60 @@ const RecsDrawer = ({ open, toggleDrawer,
                         onClick={() => handleBookClick(book.id)}
                         sx={{
                             display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
+                            gap: "16px",
                             backgroundColor: "#FFF",
-                            padding: "20px",
-                            borderRadius: "10px",
-                            maxWidth: "250px",
-                            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                            padding: "16px",
+                            borderRadius: "8px",
+                            cursor: 'pointer',
+                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+                            '&:hover': {
+                                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                                transform: 'translateY(-2px)',
+                                transition: 'all 0.2s ease-in-out',
+                            },
                         }}
                     >
                         <img
                             src={book.image}
                             alt={book.title}
                             style={{
-                                width: "100%",
-                                height: "200px",
-                                objectFit: "contain",
-                                marginBottom: "10px",
+                                width: "80px",
+                                height: "120px",
+                                objectFit: "cover",
+                                borderRadius: "4px",
                             }}
                         />
-                        <Typography variant="h6">{book.title}</Typography>
-                        <Typography variant="subtitle1">
-                            {book.authors?.join(", ")}
-                        </Typography>
-                        
+                        <Box sx={{ flex: 1 }}>
+                            <Typography 
+                                variant="subtitle1" 
+                                sx={{ 
+                                    fontWeight: 'bold',
+                                    mb: 0.5 
+                                }}
+                            >
+                                {book.title}
+                            </Typography>
+                            {book.authors && (
+                                <Typography 
+                                    variant="body2" 
+                                    color="text.secondary"
+                                >
+                                    {book.authors.join(", ")}
+                                </Typography>
+                            )}
+                            {book.avg_rating && (
+                                <Typography 
+                                    variant="body2" 
+                                    color="text.secondary"
+                                    sx={{ mt: 1 }}
+                                >
+                                    Rating: {book.avg_rating}
+                                </Typography>
+                            )}
+                        </Box>
                     </Box>
                 ))}
             </Box>
-        </Box>
         </Drawer>
     );
 };

@@ -209,10 +209,10 @@ async function getSetInLocationBooksRecs(req, res) {
     try {
         const result = await db.query(`
             SELECT id, title, image, ROUND(AVG(br.review_score), 2) as avg_rating
-            FROM amazon_books ab JOIN books_rating br ON id = book_id
+            FROM amazon_books ab LEFT JOIN books_rating br ON id = book_id
             WHERE setting_id = ${location_id}
             GROUP BY id, title, image
-            ORDER BY avg_rating DESC
+            ORDER BY avg_rating DESC NULLS LAST
             LIMIT 25;
         `);
         return res.status(200).json({ data: result.rows });
@@ -225,17 +225,16 @@ async function getSetInLocationBooksRecs(req, res) {
 // Route - GET /category_books_recs?category_id=X
 async function getCategoryBooksRecs(req, res) {
     const category = req.query.category;
-    console.log('Category ID:', category_id);
 
     try {
         const result = await db.query(`
             SELECT id, title, image, ROUND(AVG(br.review_score), 2) as avg_rating
-            FROM amazon_books ab JOIN books_rating br ON id = book_id
-            WHERE categories = '${category}'
+            FROM amazon_books ab LEFT JOIN books_rating br ON id = book_id
+            WHERE categories = $1
             GROUP BY id, title, image
-            ORDER BY avg_rating DESC
+            ORDER BY avg_rating DESC NULLS LAST
             LIMIT 25;
-        `);
+        `, [category]);
         return res.status(200).json({ data: result.rows });
     } catch (error) {
         console.error('Error fetching category books recommendations:', error);
