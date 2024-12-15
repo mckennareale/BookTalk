@@ -1,49 +1,5 @@
 const db = require('../db');
 
-// GET / setup_temp_tables
-// async function setupTempTables(req, res) {
-//     // const uid = '15'; // Assuming the user's id is '15' for demonstration
-//     const uid = req.userId;
-//     console.log(uid)
-
-//     if (!uid) {
-//         return res.status(401).json({ message: 'Unauthorized user' });
-//     }
-
-//     try {
-//         // get longitude, latitude and date_of_birth from app_users for the specific user
-//         const userDataQuery = await db.query(`
-//             SELECT 
-//                 c.longitude, 
-//                 c.latitude, 
-//                 u.date_of_birth
-//             FROM app_users u JOIN cities c ON u.location_id = c.setting_id
-//             WHERE u.id = $1;
-//         `, [uid]);
-//         if (userDataQuery.rows.length === 0) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-
-//         const { longitude, latitude, date_of_birth: dob } = userDataQuery.rows[0];
-
-//         // Calculate user age
-//         const birthDate = new Date(dob);
-//         const today = new Date();
-//         const age = today.getFullYear() - birthDate.getFullYear();
-//         const m = today.getMonth() - birthDate.getMonth();
-//         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-//             age--;
-//         }
-
-//         // Create a materialized view for this user with these details on lat long age
-        
-//         // Return success response
-//         return res.status(200).json({ message: 'view setup successfully.' });
-//     } catch (error) {
-//         console.error('Error setting up temporary tables:', error);
-//         return res.status(500).json({ message: 'Internal server error' });
-//     }
-// }
 
 async function setupMaterializedView(req, res) {
     const uid = req.userId;
@@ -58,6 +14,7 @@ async function setupMaterializedView(req, res) {
         // Define materialized view name specific to the user
         // const viewName = `user_${uid}_materialized_view`;
         const viewName = `user_${sanitizedUid}_location_view`;
+        const viewNameClassification = `user_${sanitizedUid}_classification_view`;
 
         // Check if the materialized view already exists
         const viewCheck = await client.query(`
@@ -109,6 +66,7 @@ async function setupMaterializedView(req, res) {
         console.log("long",longitude)
         console.log('Creating materialized view with name:', viewName);
         // Create the materialized view if it doesn't already exist
+        // location rec case 
         const createViewQuery = `
         CREATE MATERIALIZED VIEW ${viewName} AS
         WITH temp_similar_users AS (
@@ -162,9 +120,52 @@ async function setupMaterializedView(req, res) {
         SELECT * FROM temp_similar_user_top_books; 
         `;
 
+        const createClassificationView = `
+        CREATE MATERIALIZED VIEW ${viewNameClassification} AS
+        WITH temp_top_app_user_classification AS (
+            SELECT ab.classification AS top_classification, COUNT(hr.book_id) AS review_count
+            FROM has_reviewed hr
+            JOIN amazon_books ab ON hr.book_id = ab.id
+            WHERE hr.user_id = '${uid}'
+            GROUP BY ab.classification
+            ORDER BY review_count DESC
+            LIMIT 1
+        ),
+        temp_children_categories AS (
+            SELECT DISTINCT ab.categories
+            FROM has_reviewed hr
+            JOIN amazon_books ab ON hr.book_id = ab.id
+            WHERE hr.user_id = '${uid}' AND ab.classification = 'children'
+        ),
+        temp_ya_authors AS (
+            SELECT DISTINCT a.authors
+            FROM has_reviewed hr
+            JOIN amazon_books ab ON hr.book_id = ab.id
+            JOIN authors a ON ab.id = a.id
+            WHERE hr.user_id = '${uid}' AND ab.classification = 'YA'
+        )
+        SELECT 
+            'classification' AS type, 
+            top_classification AS value, 
+            review_count AS additional_data
+        FROM temp_top_app_user_classification
+        UNION ALL
+        SELECT 
+            'categories' AS type, 
+            categories AS value, 
+            NULL AS additional_data
+        FROM temp_children_categories
+        UNION ALL
+        SELECT 
+            'authors' AS type, 
+            authors AS value, 
+            NULL AS additional_data
+        FROM temp_ya_authors;
+        `;
+
         // Execute the dynamically built query
         await client.query(createViewQuery);
-
+        await client.query(createClassificationView)
 
         const checkView = await client.query(`
             SELECT * 
@@ -172,7 +173,15 @@ async function setupMaterializedView(req, res) {
             WHERE matviewname = $1;
         `, [viewName]);
         
+        const checkClassificationView = await client.query(`
+            SELECT * 
+            FROM pg_matviews 
+            WHERE matviewname = $1;
+        `, [viewNameClassification]);
+        
+
         console.log('View Check Result:', checkView.rows);
+        console.log('View Check Result:', checkClassificationView.rows);
 
         // Return success response
         return res.status(200).json({ message: 'Materialized view created successfully.', viewName });
