@@ -50,7 +50,7 @@ export default function LoginPage() {
           localStorage.setItem('uid', uid);
           login(token);
           tokenRetrievedRef.current = true; 
-          navigate(isNewUser ? "/onboarding" : "/");
+          navigate(isNewUser ? "/onboarding" : "/loading");
         })
         .catch((err) => console.error('Error retrieving token:', err));
     }
@@ -175,7 +175,7 @@ export default function LoginPage() {
             <Typography variant="body2" sx={{ color: 'primary.main' }}> OR </Typography>
           </Divider>
           <Button variant="outlined" size="large" startIcon={<GoogleIcon />} onClick={handleGoogleLogin}>Login / Sign Up with Google</Button>
-          <Button variant="outlined" size="large" startIcon={<FacebookIcon />} onClick={handleFacebookLogin}>Login / Sign Up with Facebook</Button>
+          {/* <Button variant="outlined" size="large" startIcon={<FacebookIcon />} onClick={handleFacebookLogin}>Login / Sign Up with Facebook</Button> */}
           {showErrorAlert && (
             <Alert variant="outlined" severity="error">
               {error}

@@ -31,7 +31,7 @@ async function getCategoryRecs(req, res) {
                     ROW_NUMBER() OVER (ORDER BY COUNT(r.book_id) DESC) AS rank
                     FROM has_reviewed r JOIN amazon_books ab
                                         on r.book_id = ab.id
-                    WHERE r.user_id = '${user_id}' AND categories IS NOT NULL
+                    WHERE r.user_id = $1 AND categories IS NOT NULL
                     GROUP BY categories
                     LIMIT 10
                 ),
@@ -43,18 +43,23 @@ async function getCategoryRecs(req, res) {
                 JOIN bx_users bu ON br.user_id = bu.id
                 WHERE category IN (SELECT LOWER(categories) AS categories FROM user_categories_rank)
                 GROUP BY bu.id
-                HAVING COUNT(DISTINCT bb.category) > 1
+                HAVING COUNT(DISTINCT bb.category) > 2
                 )
-                SELECT DISTINCT category
+                SELECT category
+                FROM (
+                SELECT DISTINCT bb2.category
                 FROM bx_books bb2
+                TABLESAMPLE SYSTEM (0.1) 
                 JOIN bx_reviews br2 ON bb2.isbn = br2.isbn
                 JOIN bx_users bu2 ON br2.user_id = bu2.id
                 WHERE bb2.category IS NOT NULL
-                AND bu2.id IN (SELECT bx_user_ids FROM  similar_bx_users)
-                AND category NOT IN (SELECT categories FROM user_categories_rank)
-                AND category IN (SELECT LOWER(categories) AS categories FROM amazon_books)
+                    AND bu2.id IN (SELECT bx_user_ids FROM similar_bx_users)
+                    AND bb2.category NOT IN (SELECT categories FROM user_categories_rank)
+                    AND bb2.category IN (SELECT LOWER(categories) AS categories FROM amazon_books)
+                ) AS sampled_categories
+                ORDER BY random()
                 LIMIT 10;
-        `);
+        `, [user_id]);
         //  [user_id, num_app_user_top_categories, num_overlap_required]
         if (categoryResult.rows.length === 0) {
                 return res.status(200).json([]);
@@ -67,49 +72,49 @@ async function getCategoryRecs(req, res) {
             try {
                 console.log("Executing query for similar=0");
                 const categoryResult = await db.query(`
-               WITH user_categories AS (
-    SELECT DISTINCT categories
-    FROM has_reviewed r
-    JOIN amazon_books ab ON r.book_id = ab.id
-    WHERE r.user_id = 'db2f6fe4-6422-4d70-8183-177b56b9a855'
-),
-bx_users_same_cat AS (
-    SELECT DISTINCT bu.id AS bx_user_ids
-    FROM bx_books bb
-    JOIN bx_reviews br ON bb.isbn = br.isbn
-    JOIN bx_users bu ON br.user_id = bu.id
-    WHERE EXISTS (
-        SELECT 1
-        FROM user_categories uc
-        WHERE bb.category = uc.categories
-    )
-),
-bx_users_diff_cat AS (
-    SELECT bu.id
-    FROM bx_users bu
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM bx_users_same_cat same_cat
-        WHERE same_cat.bx_user_ids = bu.id
-    )
-)
-SELECT bb3.category
-FROM bx_books bb3
-JOIN bx_reviews br3 ON bb3.isbn = br3.isbn
-JOIN bx_users bu3 ON br3.user_id = bu3.id
-WHERE EXISTS (
-    SELECT 1
-    FROM bx_users_diff_cat diff_cat
-    WHERE diff_cat.id = bu3.id
-)
-AND EXISTS (
-    SELECT 1
-    FROM amazon_books ab
-    WHERE ab.categories = bb3.category
-)
-GROUP BY bb3.category
-ORDER BY COUNT(br3.rating) DESC, AVG(br3.rating) DESC
-LIMIT 10;`);
+                WITH user_categories AS (
+                    SELECT DISTINCT categories
+                    FROM has_reviewed r
+                    JOIN amazon_books ab ON r.book_id = ab.id
+                    WHERE r.user_id = $1
+                ),
+                bx_users_same_cat AS (
+                    SELECT DISTINCT bu.id AS bx_user_ids
+                    FROM bx_books bb
+                    JOIN bx_reviews br ON bb.isbn = br.isbn
+                    JOIN bx_users bu ON br.user_id = bu.id
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM user_categories uc
+                        WHERE bb.category = uc.categories
+                    )
+                ),
+                bx_users_diff_cat AS (
+                    SELECT bu.id
+                    FROM bx_users bu
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM bx_users_same_cat same_cat
+                        WHERE same_cat.bx_user_ids = bu.id
+                    )
+                )
+                SELECT bb3.category
+                FROM bx_books bb3
+                JOIN bx_reviews br3 ON bb3.isbn = br3.isbn
+                JOIN bx_users bu3 ON br3.user_id = bu3.id
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM bx_users_diff_cat diff_cat
+                    WHERE diff_cat.id = bu3.id
+                )
+                AND EXISTS (
+                    SELECT 1
+                    FROM amazon_books ab
+                    WHERE ab.categories = bb3.category
+                )
+                GROUP BY bb3.category
+                ORDER BY COUNT(br3.rating) DESC, AVG(br3.rating) DESC
+                LIMIT 10;`, [user_id]);
 
                 console.log("Query results:", categoryResult.rows);
 
