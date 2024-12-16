@@ -8,6 +8,10 @@ const TopCategoriesSection = ({ data = [], error, loading, onCategoryClick }) =>
   // Array of colors to cycle through
   const colors = ['#D4E09B', '#A44A3F', '#F19C79', '#CBDFBD'];
 
+  if (data.length === 0) {
+    data = ['computers', 'business & economics', 'science', 'education', 'cooking', 'sports & recreation', 'literary criticism'];
+  }
+
   // Function to calculate height based on text length
   const getHeightFromLength = (text) => {
     const baseHeight = 140; // minimum height
