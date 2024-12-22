@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/BookTalk/static/css/main.48c5b809.css",
+    "main.js": "/BookTalk/static/js/main.4890eff5.js",
+    "static/js/453.a48ad485.chunk.js": "/BookTalk/static/js/453.a48ad485.chunk.js",
+    "static/media/time_4.png": "/BookTalk/static/media/time_4.6ea956fa672284cea089.png",
+    "static/media/time_5.png": "/BookTalk/static/media/time_5.f863d51ba8a6e35fca17.png",
+    "static/media/time_3.png": "/BookTalk/static/media/time_3.e149a26b7a23c81b8596.png",
+    "static/media/time_2.png": "/BookTalk/static/media/time_2.54eb018f2e6924d116b4.png",
+    "static/media/time_1.png": "/BookTalk/static/media/time_1.f0719feb6ee1edeab07c.png",
+    "static/media/icon_white.png": "/BookTalk/static/media/icon_white.ff299ae089ec8cda914d.png",
+    "static/media/mascot.png": "/BookTalk/static/media/mascot.890b296bcb5a89c214bd.png",
+    "static/media/logo_color.png": "/BookTalk/static/media/logo_color.f34142a261daec1fa7e1.png",
+    "static/media/logo_white.png": "/BookTalk/static/media/logo_white.c8da36b9880480bcfcdc.png",
+    "static/media/outfit-latin-wght-normal.woff2": "/BookTalk/static/media/outfit-latin-wght-normal.6c5d44285fbcc597b67a.woff2",
+    "static/media/outfit-latin-ext-wght-normal.woff2": "/BookTalk/static/media/outfit-latin-ext-wght-normal.a7f816e05f1202711a29.woff2",
+    "index.html": "/BookTalk/index.html",
+    "main.48c5b809.css.map": "/BookTalk/static/css/main.48c5b809.css.map",
+    "main.4890eff5.js.map": "/BookTalk/static/js/main.4890eff5.js.map",
+    "453.a48ad485.chunk.js.map": "/BookTalk/static/js/453.a48ad485.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.48c5b809.css",
+    "static/js/main.4890eff5.js"
+  ]
+}
